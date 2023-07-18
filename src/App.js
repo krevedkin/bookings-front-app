@@ -1,24 +1,26 @@
-import logo from './logo.svg';
-import './App.css';
-
+import "./App.css";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { LoginPage } from "./pages/LoginPage";
+import { RegisterPage } from "./pages/RegisterPage";
+import { HomePage } from "./pages/HomePage";
+import { HotelPage } from "./pages/HotelPage";
+import { Layout } from "./components/Layout";
+import { BookingPage } from "./pages/BookingPage";
+import { TestFetch } from "./pages/TestFetch";
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router>
+      <Layout>
+        <Routes>
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/registration" element={<RegisterPage />} />
+          <Route path="/home" element={<HomePage />} />
+          <Route path="/rooms" element={<HotelPage />} />
+          <Route path="/booking" element={<BookingPage />} />
+          <Route path="/test" element={<TestFetch />} />
+        </Routes>
+      </Layout>
+    </Router>
   );
 }
 
