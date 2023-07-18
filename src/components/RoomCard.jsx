@@ -8,27 +8,9 @@ import {
   Divider,
 } from "@mui/material";
 
-export const RoomCard = (props) => {
-  const services = [
-    "toilet",
-    "bed",
-    "kitchen",
-    "wi-fi",
-    "bathroom",
-    "balcony",
-    "table tennis",
-    "pool",
-    "toilet",
-    "bed",
-    "kitchen",
-    "wi-fi",
-    "bathroom",
-    "balcony",
-    "table tennis",
-    "pool",
-  ];
+export const RoomCard = ({ id, name, quantity, services, price, openBookingPage, sx }) => {
   return (
-    <Card sx={{ ...props.sx }}>
+    <Card sx={{ ...sx }}>
       <CardContent>
         <Box
           sx={{
@@ -36,10 +18,10 @@ export const RoomCard = (props) => {
             flexDirection: "column",
           }}
         >
-          <Typography variant="subtitle1">Название комнаты</Typography>
+          <Typography variant="subtitle1">{name}</Typography>
           <Divider sx={{ pt: 2 }} />
           <Typography variant="subtitle2" pt={2}>
-            Количество номеров:
+            {`Количество номеров: ${quantity}`}
           </Typography>
 
           <Grid container spacing={1} pt={2}>
@@ -67,8 +49,8 @@ export const RoomCard = (props) => {
             alignItems={"center"}
             sx={{ pt: 3 }}
           >
-            <Typography variant="subtitle1">Цена за ночь: 300$</Typography>
-            <Button variant="contained" size="small">
+            <Typography variant="subtitle1">{`Цена за ночь: ${price} руб.`}</Typography>
+            <Button variant="contained" size="small" onClick={() => openBookingPage(id)}>
               Забронировать
             </Button>
           </Grid>

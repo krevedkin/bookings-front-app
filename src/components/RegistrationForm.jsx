@@ -33,7 +33,7 @@ function Copyright(props) {
 
 // TODO remove, this demo shouldn't need to reset the theme.
 
-const defaultTheme = createTheme();
+// const defaultTheme = createTheme();
 
 export function RegistrationForm() {
   const handleSubmit = (event) => {
@@ -46,9 +46,7 @@ export function RegistrationForm() {
   };
 
   return (
-    <ThemeProvider theme={defaultTheme}>
       <Container component="main" maxWidth="xs">
-        <CssBaseline />
         <Box
           sx={{
             marginTop: 8,
@@ -117,6 +115,5 @@ export function RegistrationForm() {
         </Box>
         <Copyright sx={{ mt: 8, mb: 4 }} />
       </Container>
-    </ThemeProvider>
   );
 }

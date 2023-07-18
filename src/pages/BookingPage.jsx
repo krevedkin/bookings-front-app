@@ -8,11 +8,34 @@ import {
   Typography,
 } from "@mui/material";
 import { DateChooser } from "../components/DateChooser";
-
+import { useEffect } from "react";
+import { useAppBarStore, useBookingPageStore } from "../store/store";
+import { useLocation, useParams } from "react-router-dom";
 export const BookingPage = () => {
+  // const setBookingLink = useAppBarStore((state) => state.setBookingLink);
+  // const setHotelLink = useAppBarStore((state) => state.setHotelLink);
+
+  const hotelData = useBookingPageStore((state) => state.hotelData);
+  const roomData = useBookingPageStore((state) => state.roomData);
+  const getHotelData = useBookingPageStore((state) => state.getHotelData);
+  const getRoomData = useBookingPageStore((state) => state.getRoomData);
+  const location = useLocation();
+  const { roomId } = useParams();
+  useEffect(() => {
+    const fetchData = async () => {
+      const data = await getRoomData(roomId);
+      await getHotelData(data.hotel_id);
+    };
+    // setHotelLink({ isDisplay: true });
+    // setBookingLink({ isDisplay: true, href: location.pathname });
+    fetchData();
+  }, []);
+
+  if (!roomData || !hotelData) {
+    return <div>Loading...</div>;
+  }
   return (
     <Container maxWidth={"sm"}>
-      <CssBaseline />
       <Box
         sx={{
           marginTop: 8,
@@ -28,18 +51,14 @@ export const BookingPage = () => {
             </Grid>
             <Grid item xs={12}>
               <Typography>
-                <b>Отель: </b>Lorem ipsum dolor sit, amet consectetur
-                adipisicing elit. Laboriosam modi, in quibusdam, ex aspernatur
-                natus autem magni hic veniam velit distinctio accusamus aliquam?
-                Nemo deserunt modi beatae eius in praesentium.
+                <b>Отель: </b>
+                {hotelData?.name}
               </Typography>
             </Grid>
             <Grid item xs={12}>
               <Typography>
-                <b>Номер: </b>Lorem ipsum dolor sit amet consectetur adipisicing
-                elit. Minus consequuntur veritatis ut accusamus eligendi soluta
-                dolorum, laudantium facilis commodi quisquam assumenda optio
-                sit. Deleniti, enim. Dolore, culpa magnam! Dolores, debitis.
+                <b>Номер: </b>
+                {roomData.name}
               </Typography>
             </Grid>
           </Grid>
@@ -103,7 +122,7 @@ export const BookingPage = () => {
           </Grid>
           <Grid container spacing={1} pt={2}>
             <Grid item xs={12} sm={6}>
-              <Button variant="contained" fullWidth color="error">
+              <Button variant="contained" fullWidth color="secondary">
                 Отменить
               </Button>
             </Grid>

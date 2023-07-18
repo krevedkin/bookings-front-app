@@ -1,11 +1,11 @@
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
-export const useSideBarStore = create((set, get) => ({
+export const useHomePageStore = create((set, get) => ({
   // Состояние для Rating компонента (звездочки)
   starsCount: 0,
   setStarsCount: (value) => {
     set((state) => {
-      console.log(state.starsCount);
       return {
         ...state,
         starsCount: value,
@@ -55,8 +55,6 @@ export const useSideBarStore = create((set, get) => ({
   dropdownValue: "all",
   places: [],
   fetchPlaces: async () => {
-    console.log("fetching places.....");
-
     try {
       const response = await fetch("http://localhost:8000/hotels/locations", {
         credentials: "include",
@@ -64,7 +62,7 @@ export const useSideBarStore = create((set, get) => ({
       if (!response.ok) throw new Error("Failed to fetch! Try again");
       set({ places: await response.json() });
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   },
   setDropdownValue: (value) => {
@@ -83,7 +81,7 @@ export const useSideBarStore = create((set, get) => ({
   setSelectedDateTo: (date) => set({ dateTo: date }),
 
   // Обработчики кнопок
-  handleConfirmButton: () => {
+  handleConfirmButton: async () => {
     const dateFrom = get().dateFrom;
     const dateTo = get().dateTo;
     const starsCount = get().starsCount;
@@ -91,15 +89,25 @@ export const useSideBarStore = create((set, get) => ({
     const dropdownValue = get().dropdownValue;
 
     const data = {
-      dateFrom: dateFrom,
-      dateTo: dateTo,
-      starsCount: starsCount,
-      minCost: minCost,
-      maxCost: maxCost,
-      dropdownValue: dropdownValue,
+      date_from:
+        dateFrom !== null
+          ? `${dateFrom["$y"]}-${dateFrom["$M"]}-${dateFrom["$D"]}`
+          : null,
+      date_to:
+        dateTo !== null
+          ? `${dateTo["$y"]}-${dateTo["$M"]}-${dateTo["$D"]}`
+          : null,
+      stars: starsCount !== 0 ? starsCount : null,
+      min_price: minCost !== 0 ? minCost : null,
+      max_price: maxCost !== 10000 ? maxCost : null,
+      city: dropdownValue !== "all" ? dropdownValue : null,
     };
 
-    console.log(data);
+    const filteredData = Object.fromEntries(
+      Object.entries(data).filter(([_, value]) => value !== null)
+    );
+
+    get().fetchHotels(filteredData);
   },
 
   handleResetButton: () => {
@@ -111,53 +119,127 @@ export const useSideBarStore = create((set, get) => ({
       dateFrom: null,
       dateTo: null,
     }));
+    get().fetchHotels();
   },
-
-  testData: "hello im from first store",
-}));
-
-export const useHotelsStore = create((set, get) => ({
   hotels: [],
   loading: false,
+  fetchHotels: async (data) => {
+    const queryParams = new URLSearchParams({
+      ...data,
+    });
 
-  fetchHotels: async () => {
-    console.log("fetching hotels....");
     try {
       set({ loading: true });
-      const response = await fetch("http://localhost:8000/hotels", {
-        body: JSON.stringify(useSideBarStore.getState().data)
-      });
+      const response = await fetch(
+        `http://localhost:8000/hotels?${queryParams}`
+      );
       if (!response.ok) throw new Error("Failed to fetch! Try again");
-      set({ hotels: await response.json() });
-      console.log(get().hotels);
+      const data = await response.json();
+      console.log(data);
+      set({ hotels: data });
     } catch (error) {
-      console.log(error);
+      console.error(error);
     } finally {
       set({ loading: false });
     }
   },
-  hotelImages: [],
-  addHotelImage: (image) =>
-    set((state) => ({ hotelImages: [...state.hotelImages, image] })),
+}));
 
-  // fetchHotelImage: async () => {
-  //   try {
-  //     const response = await fetch("http://localhost:8000/hotels/image");
-  //     if (!response.ok) {
-  //       throw new Error("Failed to load the image");
-  //     }
+export const useHotelPageStore = create((set, get) => ({
+  hotelData: null,
+  getHotelData: async (hotelId) => {
+    try {
+      console.log("fetching hotel data");
 
-  //     const blob = await response.blob();
-  //     const imageUrl = URL.createObjectURL(blob);
+      const response = await fetch(`http://localhost:8000/hotels/${hotelId}`);
+      if (!response.ok) throw new Error("Failed to fetch! Try again");
+      const data = await response.json();
+      set({ hotelData: data });
+      return data;
+    } catch (error) {
+      console.error(error);
+    }
+  },
+}));
 
-  //     return imageUrl;
-  //   } catch (error) {
-  //     console.error("Error loading image:", error);
-  //     return null;
-  //   }
-  // },
+export const useAppBarStore = create(
+  persist((set, get) => ({
+    favoriteBadgeCount: 0,
+    bookingBadgeCount: 0,
+    isDarkMode: false,
+    setIsDarkMode: (value) => set({ isDarkMode: value }),
+    setFavoriteBadgeCount: (newValue) =>
+      set(() => ({ favoriteBadgeCount: newValue })),
+  }), {name:"hotel-app-storage"})
+);
+// homeLink: {
+//   isDisplay: true,
+//   label: "Отели",
+//   href: "/home",
+// },
 
-  useTestData: () => {
-    console.log(useSideBarStore.getState().testData);
+// hotelLink: {
+//   isDisplay: false,
+//   label: "Отель",
+//   href: "",
+// },
+
+// bookingLink: {
+//   isDisplay: false,
+//   label: "Бронирование",
+//   href: "",
+// },
+
+// setHotelLink: (newHotelLink) => {
+//   set((state) => ({
+//     hotelLink: { ...state.hotelLink, ...newHotelLink },
+//   }));
+// },
+// setBookingLink: (newBookingLink) => {
+//   set((state) => ({
+//     bookingLink: { ...state.bookingLink, ...newBookingLink },
+//   }));
+// },
+
+export const useBookingPageStore = create((set, get) => ({
+  hotelData: null,
+  roomData: null,
+  daysCount: 0,
+  totalPrice: 0,
+
+  setHotelName: (name) => {
+    set((state) => {
+      return {
+        ...state,
+        hotelName: name,
+      };
+    });
+  },
+  getHotelData: async (hotelId) => {
+    try {
+      console.log("fetching room data");
+      const response = await fetch(`http://localhost:8000/hotels/${hotelId}`);
+      if (!response.ok) throw new Error("Failed to fetch! Try again");
+      const data = await response.json();
+      set({ hotelData: data });
+      return data;
+    } catch (error) {
+      console.error(error);
+    }
+  },
+
+  getRoomData: async (roomId) => {
+    try {
+      console.log("fetching room data");
+      const response = await fetch(
+        `http://localhost:8000/hotels/rooms/${roomId}`
+      );
+      if (!response.ok) throw new Error("Failed to fetch! Try again");
+      const data = await response.json();
+      set({ roomData: data });
+      return data;
+    } catch (error) {
+      console.error(error);
+    }
   },
 }));

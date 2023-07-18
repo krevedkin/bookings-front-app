@@ -17,7 +17,7 @@ import {
   Slider,
   Button,
 } from "@mui/material/";
-import { useSideBarStore } from "../store/store";
+import { useHomePageStore } from "../store/store";
 
 const drawerWidth = 240;
 
@@ -25,31 +25,34 @@ function SideBar(props) {
   const { window } = props;
   const theme = useTheme();
 
-  const costSliderValues = useSideBarStore((state) => state.costSliderValues);
-  const setCostSliderValues = useSideBarStore((state) => state.setCostSliderValues);
+  const costSliderValues = useHomePageStore((state) => state.costSliderValues);
+  const setCostSliderValues = useHomePageStore((state) => state.setCostSliderValues);
 
-  const mobileOpen = useSideBarStore((state) => state.isMobileOpen);
-  const handleDrawerToggle = useSideBarStore((state) => state.setIsMobileOpen);
+  const mobileOpen = useHomePageStore((state) => state.isMobileOpen);
+  const handleDrawerToggle = useHomePageStore((state) => state.setIsMobileOpen);
 
-  const setStarsCount = useSideBarStore((state) => state.setStarsCount);
-  const starsCount = useSideBarStore((state) => state.starsCount);
+  const setStarsCount = useHomePageStore((state) => state.setStarsCount);
+  const starsCount = useHomePageStore((state) => state.starsCount);
 
-  const dropdownValue = useSideBarStore((state) => state.dropdownValue);
-  const setDropdownValue = useSideBarStore((state) => state.setDropdownValue);
-  const dropdownPlaces = useSideBarStore((state) => state.places);
+  const dropdownValue = useHomePageStore((state) => state.dropdownValue);
+  const setDropdownValue = useHomePageStore((state) => state.setDropdownValue);
+  const dropdownPlaces = useHomePageStore((state) => state.places);
 
-  const dateFrom = useSideBarStore((state) => state.dateFrom);
-  const setSelectedDateFrom = useSideBarStore((state) => state.setSelectedDateFrom);
+  const dateFrom = useHomePageStore((state) => state.dateFrom);
+  const setSelectedDateFrom = useHomePageStore((state) => state.setSelectedDateFrom);
 
-  const dateTo = useSideBarStore((state) => state.dateTo);
-  const setSelectedDateTo = useSideBarStore((state) => state.setSelectedDateTo);
+  const dateTo = useHomePageStore((state) => state.dateTo);
+  const setSelectedDateTo = useHomePageStore((state) => state.setSelectedDateTo);
 
-  const handleConfirmButton = useSideBarStore((state) => state.handleConfirmButton);
-  const handleResetButton = useSideBarStore((state) => state.handleResetButton);
+  const handleConfirmButton = useHomePageStore((state) => state.handleConfirmButton);
+  const handleResetButton = useHomePageStore((state) => state.handleResetButton);
 
-  const fetchPlaces = useSideBarStore((state) => state.fetchPlaces);
+  const fetchPlaces = useHomePageStore((state) => state.fetchPlaces);
 
-  useEffect(() => fetchPlaces, []);
+  useEffect(() => {
+    console.log("fetching places")
+    fetchPlaces()
+  }, []);
   const drawer = (
     <div>
       <Toolbar sx={{ bgcolor: theme.palette.primary.main }}>
@@ -135,6 +138,7 @@ function SideBar(props) {
             onChange={setCostSliderValues}
             valueLabelDisplay="auto"
             disableSwap
+            step={10}
             min={0}
             max={10000}
           />

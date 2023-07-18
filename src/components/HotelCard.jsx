@@ -8,24 +8,39 @@ import { LazyLoadImage } from "react-lazy-load-image-component";
 import "react-lazy-load-image-component/src/effects/blur.css";
 
 import { useState } from "react";
+import { useAppBarStore } from "../store/store";
 
 export const HotelCard = ({
   id,
   name,
-  location,
+  city,
   imgUrl,
   description,
   stars,
   minPrice,
+  openHotelPage,
 }) => {
   const [like, setLike] = useState(false);
+  const favoriteBadgeCount = useAppBarStore((state) => state.favoriteBadgeCount);
+  const setFavoriteBadgeCount = useAppBarStore(
+    (state) => state.setFavoriteBadgeCount
+  );
   const handleLikeClick = () => {
     setLike(!like);
+    if (!like) {
+      setFavoriteBadgeCount(favoriteBadgeCount + 1);
+    } else {
+      setFavoriteBadgeCount(favoriteBadgeCount - 1)
+    }
   };
 
   return (
     <Card elevation={12}>
-      <CardActionArea>
+      <CardActionArea
+        onClick={() => {
+          openHotelPage(id);
+        }}
+      >
         <LazyLoadImage
           src={imgUrl}
           alt="hotel photo"
@@ -47,11 +62,11 @@ export const HotelCard = ({
             {description}
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            {location}
+            {city}
           </Typography>
           <Rating value={stars} readOnly sx={{ pt: 1 }}></Rating>
           <Typography variant="h6" color="text.secondary" sx={{ pt: 1 }}>
-            {`Цена за ночь от: ${minPrice}`}
+            {`Цена за ночь от: ${minPrice} руб.`}
           </Typography>
         </CardContent>
       </CardActionArea>
@@ -66,7 +81,7 @@ export const HotelCard = ({
         >
           <FavoriteIcon />
         </IconButton>
-        <Typography variant="body2" color={like ? "error" : "inherit"}>
+        <Typography variant="body2" color={like ? "secondary" : "inherit"}>
           {like ? "Добавлено в избранное" : "Добавить в избранное"}
         </Typography>
       </CardActions>

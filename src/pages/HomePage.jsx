@@ -1,18 +1,26 @@
+import { useNavigate } from "react-router-dom";
+
 import { HotelCard } from "../components/HotelCard";
 import Grid from "@mui/material/Grid";
-import { useHotelsStore, useSideBarStore } from "../store/store";
+import { useAppBarStore, useHomePageStore } from "../store/store";
 
 import { Toolbar, Typography, Box, CircularProgress } from "@mui/material/";
 import SideBar from "../components/SideBar";
 import { useEffect } from "react";
 
 export const HomePage = () => {
-  const hotels = useHotelsStore((state) => state.hotels);
-  const loading = useHotelsStore((state) => state.loading);
-  const fetchHotels = useHotelsStore((state) => state.fetchHotels);
+  const navigate = useNavigate();
+  const openHotelPage = (id) => navigate(`/hotel/${id}`);
+  const hotels = useHomePageStore((state) => state.hotels);
+  const loading = useHomePageStore((state) => state.loading);
+  const fetchHotels = useHomePageStore((state) => state.fetchHotels);
+  // const setHotelLink = useAppBarStore((state) => state.setHotelLink);
+  // const setBookingLink = useAppBarStore((state) => state.setBookingLink);
 
   useEffect(() => {
     fetchHotels();
+    // setHotelLink({isDisplay: false})
+    // setBookingLink({isDisplay: false})
   }, []);
 
   return (
@@ -32,13 +40,13 @@ export const HomePage = () => {
         <Toolbar />
         <Typography variant="h2">Все отели</Typography>
 
-        {loading ? ( // Проверяем значение loading
+        {loading ? (
           <Box
             sx={{
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
-              minHeight: "400px", // Установите высоту, чтобы контент не смещался
+              minHeight: "400px",
             }}
           >
             <CircularProgress size={120} />
@@ -51,11 +59,12 @@ export const HomePage = () => {
                   <HotelCard
                     id={hotel.id}
                     name={hotel.name}
-                    location={hotel.location}
+                    city={hotel.city}
                     imgUrl={hotel.image_url}
                     description={hotel.description}
                     stars={hotel.stars}
                     minPrice={hotel.min_price}
+                    openHotelPage={openHotelPage}
                   />
                 </Grid>
               );
@@ -63,7 +72,7 @@ export const HomePage = () => {
           </Grid>
         )}
 
-        <Box sx={{ bgcolor: "background.paper", p: 6 }} component="footer">
+        <Box sx={{p: 6}} component="footer">
           <Typography variant="h6" align="center" gutterBottom>
             Footer
           </Typography>
