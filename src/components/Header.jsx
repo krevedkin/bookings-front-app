@@ -28,12 +28,13 @@ import { useHomePageStore } from "../store/store";
 import { useAppBarStore } from "../store/store";
 
 export function Header() {
-  const [anchorEl, setAnchorEl] = useState(null);
-  const handleMenu = (event) => {
-    setAnchorEl(event.currentTarget);
+  const [accountDesktopMenu, setAccountDesktopMenu] = useState(null);
+
+  const handleAccountDesktopMenu = (event) => {
+    setAccountDesktopMenu(event.currentTarget);
   };
-  const handleClose = () => {
-    setAnchorEl(null);
+  const handleCloseAccountDesktopMenu = () => {
+    setAccountDesktopMenu(null);
   };
 
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("sm"));
@@ -43,8 +44,9 @@ export function Header() {
   );
   const isDarkMode = useAppBarStore((state) => state.isDarkMode);
   const setIsDarkMode = useAppBarStore((state) => state.setIsDarkMode);
+  const [mobileRightMenuOpen, setMobileRightMenuOpen] = useState(false);
 
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  
   return (
     <AppBar
       position="fixed"
@@ -68,6 +70,7 @@ export function Header() {
         <Typography
           component="a"
           href={"/home"}
+          textAlign={isSmallScreen ? "center" : "flex-start"}
           sx={{
             flexGrow: 1,
             color: "inherit",
@@ -82,15 +85,15 @@ export function Header() {
         {isSmallScreen ? (
           <div>
             <IconButton
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              onClick={() => setMobileRightMenuOpen(!mobileRightMenuOpen)}
               sx={{ color: "inherit", textDecoration: "none" }}
             >
               <MoreVertIcon />
             </IconButton>
             <Drawer
               anchor="top"
-              open={mobileMenuOpen}
-              onClose={() => setMobileMenuOpen(false)}
+              open={mobileRightMenuOpen}
+              onClose={() => setMobileRightMenuOpen(false)}
             >
               <Toolbar />
               <Box>
@@ -107,7 +110,12 @@ export function Header() {
                   <ListItem disablePadding>
                     <ListItemButton>
                       <ListItemIcon>
-                        <FavoriteIcon />
+                        <Badge
+                          badgeContent={favoriteBadgeCount}
+                          color="secondary"
+                        >
+                          <FavoriteIcon />
+                        </Badge>
                       </ListItemIcon>
                       <ListItemText primary="Избранные отели" />
                     </ListItemButton>
@@ -116,7 +124,9 @@ export function Header() {
                   <ListItem disablePadding>
                     <ListItemButton>
                       <ListItemIcon>
-                        <BedIcon />
+                        <Badge badgeContent={2} color="secondary">
+                          <BedIcon />
+                        </Badge>
                       </ListItemIcon>
                       <ListItemText primary="Мои бронирования" />
                     </ListItemButton>
@@ -200,18 +210,20 @@ export function Header() {
               aria-controls="menu-appbar"
               aria-haspopup="true"
               color="inherit"
-              onClick={handleMenu}
+              onClick={handleAccountDesktopMenu}
             >
               <AccountCircle />
             </IconButton>
             <Menu
               id="menu-appbar"
-              anchorEl={anchorEl}
-              open={Boolean(anchorEl)}
-              onClose={handleClose}
+              anchorEl={accountDesktopMenu}
+              open={Boolean(accountDesktopMenu)}
+              onClose={handleCloseAccountDesktopMenu}
             >
-              <MenuItem onClick={handleClose}>Привет</MenuItem>
-              <MenuItem onClick={handleClose}>Мир</MenuItem>
+              <MenuItem onClick={handleCloseAccountDesktopMenu}>
+                Привет
+              </MenuItem>
+              <MenuItem onClick={handleCloseAccountDesktopMenu}>Мир</MenuItem>
             </Menu>
           </div>
         )}

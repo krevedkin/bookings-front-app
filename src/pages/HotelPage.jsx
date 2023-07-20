@@ -13,31 +13,15 @@ import { ServiceChip } from "../components/ServiceChip";
 import QuiltedImageList from "../components/Images";
 import { useHotelPageStore } from "../store/store";
 import { useEffect } from "react";
-import { useAppBarStore } from "../store/store";
-import { useLocation } from "react-router-dom";
 export const HotelPage = () => {
   const hotelData = useHotelPageStore((state) => state.hotelData);
   const getHotelData = useHotelPageStore((state) => state.getHotelData);
   const { id } = useParams();
-  // const setHotelLink = useAppBarStore((state) => state.setHotelLink);
-  // const setBookingLink = useAppBarStore((state) => state.setBookingLink);
   const navigate = useNavigate();
-  const location = useLocation();
   const openRoomBookingPage = (roomId) => navigate(`/booking/${roomId}`);
 
   useEffect(() => {
-    const fetchData = async () => {
-      const data = await getHotelData(id);
-      // setHotelLink({
-      //   isDisplay: true,
-      //   label: data.name,
-      //   href: location.pathname,
-      // });
-      // setBookingLink({
-      //   isDisplay: false,
-      // });
-    };
-    fetchData();
+    getHotelData(id);
   }, []);
 
   if (!hotelData) {

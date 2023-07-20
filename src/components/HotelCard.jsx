@@ -6,9 +6,9 @@ import FavoriteIcon from "@mui/icons-material/Favorite";
 import Rating from "@mui/material/Rating";
 import { LazyLoadImage } from "react-lazy-load-image-component";
 import "react-lazy-load-image-component/src/effects/blur.css";
-
 import { useState } from "react";
-import { useAppBarStore } from "../store/store";
+import { useAppBarStore, useHomePageStore } from "../store/store";
+import { API } from "../http/api";
 
 export const HotelCard = ({
   id,
@@ -19,20 +19,34 @@ export const HotelCard = ({
   stars,
   minPrice,
   openHotelPage,
+  isFavorite
 }) => {
-  const [like, setLike] = useState(false);
-  const favoriteBadgeCount = useAppBarStore((state) => state.favoriteBadgeCount);
+  const [isLikePressed, setLikeIsLikePressed] = useState(isFavorite);
+  const favoriteBadgeCount = useAppBarStore(
+    (state) => state.favoriteBadgeCount
+  );
   const setFavoriteBadgeCount = useAppBarStore(
     (state) => state.setFavoriteBadgeCount
   );
-  const handleLikeClick = () => {
-    setLike(!like);
-    if (!like) {
-      setFavoriteBadgeCount(favoriteBadgeCount + 1);
+
+  const handleLikeButton = async () => {
+    if (!isLikePressed) {
+      setLikeIsLikePressed(true)
+      API.addFavoriteHotel(id)
     } else {
-      setFavoriteBadgeCount(favoriteBadgeCount - 1)
+      setLikeIsLikePressed(false)
+      API.deleteFavoriteHotel(id)
     }
-  };
+  }
+
+  // const handleLikeClick = () => {
+  //   setLike(!like);
+  //   if (!like) {
+  //     setFavoriteBadgeCount(favoriteBadgeCount + 1);
+  //   } else {
+  //     setFavoriteBadgeCount(favoriteBadgeCount - 1);
+  //   }
+  // };
 
   return (
     <Card elevation={12}>
@@ -75,14 +89,13 @@ export const HotelCard = ({
           size="large"
           aria-label="add to favorite"
           aria-haspopup="true"
-          // color="inherit"
-          color={like ? "error" : "inherit"}
-          onClick={handleLikeClick}
+          color={isLikePressed ? "error" : "inherit"}
+          onClick={handleLikeButton}
         >
           <FavoriteIcon />
         </IconButton>
-        <Typography variant="body2" color={like ? "secondary" : "inherit"}>
-          {like ? "Добавлено в избранное" : "Добавить в избранное"}
+        <Typography variant="body2" color={isLikePressed ? "secondary" : "inherit"}>
+          {isLikePressed ? "Добавлено в избранное" : "Добавить в избранное"}
         </Typography>
       </CardActions>
     </Card>

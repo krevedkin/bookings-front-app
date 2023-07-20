@@ -14,13 +14,30 @@ export const HomePage = () => {
   const hotels = useHomePageStore((state) => state.hotels);
   const loading = useHomePageStore((state) => state.loading);
   const fetchHotels = useHomePageStore((state) => state.fetchHotels);
-  // const setHotelLink = useAppBarStore((state) => state.setHotelLink);
-  // const setBookingLink = useAppBarStore((state) => state.setBookingLink);
+  const favoriteBadgeCount = useAppBarStore(
+    (state) => state.favoriteBadgeCount
+  );
+  const setFavoriteBadgeCount = useAppBarStore(
+    (state) => state.setFavoriteBadgeCount
+  );
 
+  const calculateFavoriteHotels = (data) => {
+    return data.reduce((accumulator, element) => {
+      if (element.is_favorite === true) {
+        return accumulator + 1;
+      } else {
+        return accumulator;
+      }
+    }, 0);
+  };
+
+  // todo разбраться как работать с асинхронными запросами
   useEffect(() => {
-    fetchHotels();
-    // setHotelLink({isDisplay: false})
-    // setBookingLink({isDisplay: false})
+    fetchHotels().then(data => {
+      calculateFavoriteHotels(data)
+      setFavoriteBadgeCount()
+    });
+    
   }, []);
 
   return (
@@ -64,6 +81,7 @@ export const HomePage = () => {
                     description={hotel.description}
                     stars={hotel.stars}
                     minPrice={hotel.min_price}
+                    isFavorite={hotel.is_favorite}
                     openHotelPage={openHotelPage}
                   />
                 </Grid>
@@ -72,7 +90,7 @@ export const HomePage = () => {
           </Grid>
         )}
 
-        <Box sx={{p: 6}} component="footer">
+        <Box sx={{ p: 6 }} component="footer">
           <Typography variant="h6" align="center" gutterBottom>
             Footer
           </Typography>

@@ -1,5 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { CONFIG } from "../config";
+import { API } from "../http/api";
 
 export const useHomePageStore = create((set, get) => ({
   // Состояние для Rating компонента (звездочки)
@@ -137,6 +139,7 @@ export const useHomePageStore = create((set, get) => ({
       const data = await response.json();
       console.log(data);
       set({ hotels: data });
+      return data
     } catch (error) {
       console.error(error);
     } finally {
@@ -160,46 +163,31 @@ export const useHotelPageStore = create((set, get) => ({
       console.error(error);
     }
   },
+
+  // handleHotelLikeButton: async (hotelId, isPressed) => {
+  //   if (!isPressed) {
+  //     await API.addFavoriteHotel(hotelId);
+  //     return !isPressed;
+  //   } else {
+  //     await API.deleteFavoriteHotel(hotelId);
+  //     return !isPressed;
+  //   }
+  // },
 }));
 
 export const useAppBarStore = create(
-  persist((set, get) => ({
-    favoriteBadgeCount: 0,
-    bookingBadgeCount: 0,
-    isDarkMode: false,
-    setIsDarkMode: (value) => set({ isDarkMode: value }),
-    setFavoriteBadgeCount: (newValue) =>
-      set(() => ({ favoriteBadgeCount: newValue })),
-  }), {name:"hotel-app-storage"})
+  persist(
+    (set, get) => ({
+      favoriteBadgeCount: 0,
+      bookingBadgeCount: 0,
+      isDarkMode: false,
+      setIsDarkMode: (value) => set({ isDarkMode: value }),
+      setFavoriteBadgeCount: (newValue) =>
+        set(() => ({ favoriteBadgeCount: newValue })),
+    }),
+    { name: "hotel-app-storage" }
+  )
 );
-// homeLink: {
-//   isDisplay: true,
-//   label: "Отели",
-//   href: "/home",
-// },
-
-// hotelLink: {
-//   isDisplay: false,
-//   label: "Отель",
-//   href: "",
-// },
-
-// bookingLink: {
-//   isDisplay: false,
-//   label: "Бронирование",
-//   href: "",
-// },
-
-// setHotelLink: (newHotelLink) => {
-//   set((state) => ({
-//     hotelLink: { ...state.hotelLink, ...newHotelLink },
-//   }));
-// },
-// setBookingLink: (newBookingLink) => {
-//   set((state) => ({
-//     bookingLink: { ...state.bookingLink, ...newBookingLink },
-//   }));
-// },
 
 export const useBookingPageStore = create((set, get) => ({
   hotelData: null,

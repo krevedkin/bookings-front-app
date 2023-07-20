@@ -26,7 +26,9 @@ function SideBar(props) {
   const theme = useTheme();
 
   const costSliderValues = useHomePageStore((state) => state.costSliderValues);
-  const setCostSliderValues = useHomePageStore((state) => state.setCostSliderValues);
+  const setCostSliderValues = useHomePageStore(
+    (state) => state.setCostSliderValues
+  );
 
   const mobileOpen = useHomePageStore((state) => state.isMobileOpen);
   const handleDrawerToggle = useHomePageStore((state) => state.setIsMobileOpen);
@@ -39,33 +41,30 @@ function SideBar(props) {
   const dropdownPlaces = useHomePageStore((state) => state.places);
 
   const dateFrom = useHomePageStore((state) => state.dateFrom);
-  const setSelectedDateFrom = useHomePageStore((state) => state.setSelectedDateFrom);
+  const setSelectedDateFrom = useHomePageStore(
+    (state) => state.setSelectedDateFrom
+  );
 
   const dateTo = useHomePageStore((state) => state.dateTo);
-  const setSelectedDateTo = useHomePageStore((state) => state.setSelectedDateTo);
+  const setSelectedDateTo = useHomePageStore(
+    (state) => state.setSelectedDateTo
+  );
 
-  const handleConfirmButton = useHomePageStore((state) => state.handleConfirmButton);
-  const handleResetButton = useHomePageStore((state) => state.handleResetButton);
+  const handleConfirmButton = useHomePageStore(
+    (state) => state.handleConfirmButton
+  );
+  const handleResetButton = useHomePageStore(
+    (state) => state.handleResetButton
+  );
 
   const fetchPlaces = useHomePageStore((state) => state.fetchPlaces);
 
   useEffect(() => {
-    console.log("fetching places")
-    fetchPlaces()
+    fetchPlaces();
   }, []);
   const drawer = (
     <div>
-      <Toolbar sx={{ bgcolor: theme.palette.primary.main }}>
-        <Typography
-          variant="h6"
-          noWrap
-          component="div"
-          color={theme.palette.primary.contrastText}
-        >
-          Hotels
-        </Typography>
-      </Toolbar>
-
+      <Toolbar />
       <List disablePadding sx={{ mt: 5 }}>
         <ListItem disablePadding sx={{ textAlign: "center" }}>
           <ListItemText primary="Выбрать даты" />
@@ -180,9 +179,7 @@ function SideBar(props) {
     <Box
       component="nav"
       sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
-      aria-label="mailbox folders"
     >
-      {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
       <Drawer
         container={container}
         variant="temporary"

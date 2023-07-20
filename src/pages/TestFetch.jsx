@@ -1,11 +1,18 @@
 import { Toolbar, Container } from "@mui/material";
-import { MobileMenu } from "../components/MobileMenu";
+import { API } from "../http/api";
 
 export const TestFetch = () => {
   return (
     <Container>
       <Toolbar />
-      <MobileMenu />
+      <button
+        onClick={async () =>
+          
+          API.deleteFavoriteHotel(1)
+        }
+      >
+        Нажми на меня
+      </button>
     </Container>
   );
 };
