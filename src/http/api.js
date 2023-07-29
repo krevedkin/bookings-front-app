@@ -162,4 +162,29 @@ export class API {
       localStorage.removeItem("access_token");
     }
   }
+
+  static async addBooking(
+    dateFrom,
+    dateTo,
+    roomId,
+    email,
+    firstName,
+    secondName,
+    phone
+  ) {
+    try {
+      const payload = {
+        date_from: dateFrom,
+        date_to: dateTo,
+        room_id: roomId,
+        email: email,
+        first_name: firstName,
+        second_name: secondName,
+        phone: phone,
+      };
+      return await instance.post("/bookings", payload);
+    } catch (error) {
+      throw error;
+    }
+  }
 }

@@ -114,6 +114,7 @@ export const useHomePageStore = create((set, get) => ({
 
   // список отелей
   hotels: [],
+  setHotels: (newHotels) => set({ hotels: newHotels }),
   loading: false,
   fetchHotels: async (filterParams) => {
     try {
@@ -133,6 +134,7 @@ export const useHomePageStore = create((set, get) => ({
       set({ loading: true });
       const response = await API.getHotelsList({ favorites_only: true });
       set({ hotels: response?.data });
+      return response;
     } catch (error) {
       console.error(error, "Невозможно получить список избранных отелей");
     } finally {
@@ -144,6 +146,27 @@ export const useHomePageStore = create((set, get) => ({
   pageTitle: "Все отели",
   setPageTitle: (title) => {
     set({ pageTitle: title });
+  },
+
+  alertOpen: false,
+  setAlertOpen: (value) => {
+    set({ alertOpen: value });
+  },
+
+  addFavoriteHotel: async (id) => {
+    try {
+      return await API.addFavoriteHotel(id);
+    } catch (error) {
+      console.error(error);
+    }
+  },
+
+  removeFavoriteHotel: async (id) => {
+    try {
+      return await API.deleteFavoriteHotel(id);
+    } catch (error) {
+      console.error(error);
+    }
   },
 }));
 
@@ -184,7 +207,39 @@ export const useBookingPageStore = create((set, get) => ({
   hotelData: null,
   roomData: null,
   daysCount: 0,
+  setDaysCount: (value) => set({ daysCount: value }),
   totalPrice: 0,
+  setTotalPrice: (value) => set({ totalPrice: value }),
+
+  dateFrom: null,
+  setSelectedDateFrom: (date) => set({ dateFrom: date }),
+  errorDateFrom: "",
+  setErrorDateFrom: (value) => set({ errorDateFrom: value }),
+
+  dateTo: null,
+  setSelectedDateTo: (date) => set({ dateTo: date }),
+  errorDateTo: "",
+  setErrorDateTo: (value) => set({ errorDateTo: value }),
+
+  emailValue: "",
+  setEmailValue: (value) => set({ emailValue: value }),
+  errorEmailValue: "",
+  setErrorEmailValue: (value) => set({ errorEmailValue: value }),
+
+  phoneValue: "",
+  setPhoneValue: (value) => set({ phoneValue: value }),
+  errorPhoneValue: "",
+  setErrorPhoneValue: (value) => set({ errorPhoneValue: value }),
+
+  firstNameValue: "",
+  setFirstNameValue: (value) => set({ firstNameValue: value }),
+  errorFirstNameValue: "",
+  setErrorFirstNameValue: (value) => set({ errorFirstNameValue: value }),
+
+  lastNameValue: "",
+  setLastNameValue: (value) => set({ lastNameValue: value }),
+  errorLastNameValue: "",
+  setErrorLastNameValue: (value) => set({ errorLastNameValue: value }),
 
   getRoomData: async (roomId) => {
     try {
@@ -193,6 +248,27 @@ export const useBookingPageStore = create((set, get) => ({
       return response;
     } catch (error) {
       console.error(error, "Невозможно получить данные о комнате");
+    }
+  },
+
+  addBooking: async () => {
+    let dateFrom = get().dateFrom;
+    let dateTo = get().dateTo;
+    dateFrom = `${dateFrom["$y"]}-${dateFrom["$M"] + 1}-${dateFrom["$D"]}`;
+    dateTo = `${dateTo["$y"]}-${dateTo["$M"] + 1}-${dateTo["$D"]}`;
+    try {
+      const response = await API.addBooking(
+        dateFrom,
+        dateTo,
+        get().roomData.id,
+        get().emailValue,
+        get().firstNameValue,
+        get().lastNameValue,
+        get().phoneValue
+      );
+      return response;
+    } catch (error) {
+      console.error(error);
     }
   },
 }));

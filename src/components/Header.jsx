@@ -24,13 +24,14 @@ import Menu from "@mui/material/Menu";
 import DarkModeIcon from "@mui/icons-material/DarkMode";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useHomePageStore } from "../store/store";
 import { useAppBarStore } from "../store/store";
 import { API } from "../http/api";
 import { authStore } from "../store/store";
 export function Header() {
   const navigate = useNavigate("/login");
+  const location = useLocation();
   const isAuthenticated = authStore((state) => state.isAuthenticated);
   const setIsAuthenticated = authStore((state) => state.setIsAuthenticated);
   const userName = useAppBarStore((state) => state.userName);
@@ -66,8 +67,11 @@ export function Header() {
 
   const setPageTitle = useHomePageStore((state) => state.setPageTitle);
 
-  const handleFavoriteHotelsButton = () => {
-    fetchFavoriteHotels();
+  const handleFavoriteHotelsButton = async () => {
+    if (location.pathname !== "/home") {
+      navigate("/home");
+    }
+    const response = await fetchFavoriteHotels();
     setPageTitle("Избранное");
     setMobileRightMenuOpen(false);
   };
@@ -205,7 +209,7 @@ export function Header() {
 
             <IconButton
               size="large"
-              aria-label="favorite hotels"
+              aria-label="app-theme"
               aria-haspopup="true"
               color="inherit"
               onClick={() => setIsDarkMode(!isDarkMode)}
@@ -219,7 +223,6 @@ export function Header() {
               aria-label="favorite hotels"
               aria-haspopup="true"
               color="inherit"
-              // onClick={fetchFavoriteHotels}
               onClick={handleFavoriteHotelsButton}
               disabled={!isAuthenticated}
             >

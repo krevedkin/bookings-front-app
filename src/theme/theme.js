@@ -1,6 +1,5 @@
 import { createTheme } from "@mui/material";
 import { lightBlue, deepOrange, grey } from "@mui/material/colors";
-import { tooltipClasses } from "@mui/material/Tooltip";
 
 export const darkTheme = createTheme({
   palette: {

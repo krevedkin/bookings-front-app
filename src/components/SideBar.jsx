@@ -103,12 +103,11 @@ function SideBar(props) {
             onChange={setSelectedDateFrom}
           />
         </ListItem>
-        <ListItem disablePadding>
+        <ListItem disablePadding sx={{ px: 1 }}>
           <DateChooser
             label="Дата выезда"
             value={dateTo}
             onChange={setSelectedDateTo}
-            sx={{ px: 1 }}
           />
         </ListItem>
         <ListItem disablePadding sx={{ textAlign: "center" }}>
