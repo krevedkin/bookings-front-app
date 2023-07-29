@@ -33,9 +33,11 @@ export const HotelCard = ({
     if (!isLikePressed) {
       setLikeIsLikePressed(true)
       API.addFavoriteHotel(id)
+      setFavoriteBadgeCount(favoriteBadgeCount + 1)
     } else {
       setLikeIsLikePressed(false)
       API.deleteFavoriteHotel(id)
+      setFavoriteBadgeCount(favoriteBadgeCount - 1)
     }
   }
 

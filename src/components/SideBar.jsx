@@ -1,13 +1,6 @@
 import { useEffect } from "react";
-import Box from "@mui/material/Box";
-import Drawer from "@mui/material/Drawer";
-import List from "@mui/material/List";
-import ListItem from "@mui/material/ListItem";
-import ListItemText from "@mui/material/ListItemText";
-import Toolbar from "@mui/material/Toolbar";
-import Typography from "@mui/material/Typography";
-import { useTheme } from "@mui/material/styles";
 import { DateChooser } from "./DateChooser";
+import InfoIcon from "@mui/icons-material/Info";
 import {
   MenuItem,
   FormControl,
@@ -16,6 +9,16 @@ import {
   Rating,
   Slider,
   Button,
+  Grid,
+  Box,
+  Drawer,
+  List,
+  ListItem,
+  ListItemText,
+  Toolbar,
+  IconButton,
+  Tooltip,
+  Typography,
 } from "@mui/material/";
 import { useHomePageStore } from "../store/store";
 
@@ -23,8 +26,8 @@ const drawerWidth = 240;
 
 function SideBar(props) {
   const { window } = props;
-  const theme = useTheme();
 
+  const setPageTitle = useHomePageStore((state) => state.setPageTitle);
   const costSliderValues = useHomePageStore((state) => state.costSliderValues);
   const setCostSliderValues = useHomePageStore(
     (state) => state.setCostSliderValues
@@ -38,7 +41,7 @@ function SideBar(props) {
 
   const dropdownValue = useHomePageStore((state) => state.dropdownValue);
   const setDropdownValue = useHomePageStore((state) => state.setDropdownValue);
-  const dropdownPlaces = useHomePageStore((state) => state.places);
+  const cities = useHomePageStore((state) => state.cities);
 
   const dateFrom = useHomePageStore((state) => state.dateFrom);
   const setSelectedDateFrom = useHomePageStore(
@@ -57,17 +60,41 @@ function SideBar(props) {
     (state) => state.handleResetButton
   );
 
-  const fetchPlaces = useHomePageStore((state) => state.fetchPlaces);
+  const getCities = useHomePageStore((state) => state.getCities);
 
   useEffect(() => {
-    fetchPlaces();
+    getCities();
   }, []);
   const drawer = (
     <div>
       <Toolbar />
       <List disablePadding sx={{ mt: 5 }}>
-        <ListItem disablePadding sx={{ textAlign: "center" }}>
-          <ListItemText primary="Выбрать даты" />
+        <ListItem sx={{ textAlign: "center" }}>
+          <Grid
+            container
+            justifyContent={"center"}
+            spacing={1}
+            alignItems={"center"}
+          >
+            <Grid item>
+              <ListItemText primary="Выбрать даты" />
+            </Grid>
+            <Grid item>
+              <Tooltip
+                title={
+                  <Typography>
+                    При выборе дат будут показаны только те отели, у которых
+                    есть хотя бы одна свободная комната на выбранный период
+                  </Typography>
+                }
+                placement="right-start"
+              >
+                <IconButton>
+                  <InfoIcon />
+                </IconButton>
+              </Tooltip>
+            </Grid>
+          </Grid>
         </ListItem>
         <ListItem disablePadding sx={{ px: 1 }}>
           <DateChooser
@@ -103,7 +130,7 @@ function SideBar(props) {
               <MenuItem value="all" onClick={() => setDropdownValue("all")}>
                 <em>Все</em>
               </MenuItem>
-              {dropdownPlaces.map((text) => {
+              {cities.map((text) => {
                 return (
                   <MenuItem
                     key={text}
@@ -154,7 +181,14 @@ function SideBar(props) {
         </ListItem>
 
         <ListItem>
-          <Button fullWidth variant="contained" onClick={handleConfirmButton}>
+          <Button
+            fullWidth
+            variant="contained"
+            onClick={() => {
+              handleConfirmButton();
+              setPageTitle("Все отели");
+            }}
+          >
             Применить
           </Button>
         </ListItem>
@@ -163,7 +197,10 @@ function SideBar(props) {
             fullWidth
             variant="contained"
             color="error"
-            onClick={handleResetButton}
+            onClick={() => {
+              handleResetButton();
+              setPageTitle("Все отели");
+            }}
           >
             Сбросить
           </Button>

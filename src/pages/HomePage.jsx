@@ -14,12 +14,10 @@ export const HomePage = () => {
   const hotels = useHomePageStore((state) => state.hotels);
   const loading = useHomePageStore((state) => state.loading);
   const fetchHotels = useHomePageStore((state) => state.fetchHotels);
-  const favoriteBadgeCount = useAppBarStore(
-    (state) => state.favoriteBadgeCount
-  );
   const setFavoriteBadgeCount = useAppBarStore(
     (state) => state.setFavoriteBadgeCount
   );
+  const pageTitle = useHomePageStore((state) => state.pageTitle);
 
   const calculateFavoriteHotels = (data) => {
     return data.reduce((accumulator, element) => {
@@ -31,13 +29,13 @@ export const HomePage = () => {
     }, 0);
   };
 
-  // todo разбраться как работать с асинхронными запросами
   useEffect(() => {
-    fetchHotels().then(data => {
-      calculateFavoriteHotels(data)
-      setFavoriteBadgeCount()
-    });
-    
+    const fetchData = async () => {
+      const response = await fetchHotels();
+      const favoriteHotelsCount = calculateFavoriteHotels(response?.data);
+      setFavoriteBadgeCount(favoriteHotelsCount);
+    };
+    fetchData();
   }, []);
 
   return (
@@ -55,7 +53,7 @@ export const HomePage = () => {
         }}
       >
         <Toolbar />
-        <Typography variant="h2">Все отели</Typography>
+        <Typography variant="h2">{pageTitle}</Typography>
 
         {loading ? (
           <Box
@@ -89,20 +87,6 @@ export const HomePage = () => {
             })}
           </Grid>
         )}
-
-        <Box sx={{ p: 6 }} component="footer">
-          <Typography variant="h6" align="center" gutterBottom>
-            Footer
-          </Typography>
-          <Typography
-            variant="subtitle1"
-            align="center"
-            color="text.secondary"
-            component="p"
-          >
-            Something here to give the footer a purpose!
-          </Typography>
-        </Box>
       </Box>
     </Box>
   );

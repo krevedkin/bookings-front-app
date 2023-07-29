@@ -1,18 +1,22 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { CONFIG } from "../config";
 import { API } from "../http/api";
+
+export const authStore = create(
+  persist(
+    (set) => ({
+      isAuthenticated: false,
+      setIsAuthenticated: (value) => set({ isAuthenticated: value }),
+    }),
+    { name: "hotel-app-auth" }
+  )
+);
 
 export const useHomePageStore = create((set, get) => ({
   // Состояние для Rating компонента (звездочки)
   starsCount: 0,
   setStarsCount: (value) => {
-    set((state) => {
-      return {
-        ...state,
-        starsCount: value,
-      };
-    });
+    set({ starsCount: value });
   },
 
   // Состояние для Slider компонента и текста под ним
@@ -44,36 +48,21 @@ export const useHomePageStore = create((set, get) => ({
 
   // Состояние для SideBar копонента
   isMobileOpen: false,
-  setIsMobileOpen: () => {
-    set((state) => {
-      return {
-        ...state,
-        isMobileOpen: !state.isMobileOpen,
-      };
-    });
-  },
+  setIsMobileOpen: () => set({ isMobileOpen: !get().isMobileOpen }),
 
   //состояние для Select компонента
   dropdownValue: "all",
-  places: [],
-  fetchPlaces: async () => {
+  cities: [],
+  getCities: async () => {
     try {
-      const response = await fetch("http://localhost:8000/hotels/locations", {
-        credentials: "include",
-      });
-      if (!response.ok) throw new Error("Failed to fetch! Try again");
-      set({ places: await response.json() });
+      const response = await API.getCitiesList();
+      set({ cities: response?.data });
     } catch (error) {
-      console.error(error);
+      console.error(error, "Невозможно получить список городов");
     }
   },
   setDropdownValue: (value) => {
-    set((state) => {
-      return {
-        ...state,
-        dropdownValue: value,
-      };
-    });
+    set({ dropdownValue: value });
   },
 
   //состояние DateChooser
@@ -93,11 +82,11 @@ export const useHomePageStore = create((set, get) => ({
     const data = {
       date_from:
         dateFrom !== null
-          ? `${dateFrom["$y"]}-${dateFrom["$M"]}-${dateFrom["$D"]}`
+          ? `${dateFrom["$y"]}-${dateFrom["$M"] + 1}-${dateFrom["$D"]}`
           : null,
       date_to:
         dateTo !== null
-          ? `${dateTo["$y"]}-${dateTo["$M"]}-${dateTo["$D"]}`
+          ? `${dateTo["$y"]}-${dateTo["$M"] + 1}-${dateTo["$D"]}`
           : null,
       stars: starsCount !== 0 ? starsCount : null,
       min_price: minCost !== 0 ? minCost : null,
@@ -113,66 +102,62 @@ export const useHomePageStore = create((set, get) => ({
   },
 
   handleResetButton: () => {
-    set((state) => ({
-      ...state,
+    set({
       starsCount: 0,
       costSliderValues: [0, 10000],
       dropdownValue: "all",
       dateFrom: null,
       dateTo: null,
-    }));
+    });
     get().fetchHotels();
   },
+
+  // список отелей
   hotels: [],
   loading: false,
-  fetchHotels: async (data) => {
-    const queryParams = new URLSearchParams({
-      ...data,
-    });
-
+  fetchHotels: async (filterParams) => {
     try {
       set({ loading: true });
-      const response = await fetch(
-        `http://localhost:8000/hotels?${queryParams}`
-      );
-      if (!response.ok) throw new Error("Failed to fetch! Try again");
-      const data = await response.json();
-      console.log(data);
-      set({ hotels: data });
-      return data
+      const response = await API.getHotelsList(filterParams);
+      set({ hotels: response?.data });
+      return response;
     } catch (error) {
-      console.error(error);
+      console.error(error, "Невозможно получить список отелей");
     } finally {
       set({ loading: false });
     }
   },
-}));
 
-export const useHotelPageStore = create((set, get) => ({
-  hotelData: null,
-  getHotelData: async (hotelId) => {
+  fetchFavoriteHotels: async () => {
     try {
-      console.log("fetching hotel data");
-
-      const response = await fetch(`http://localhost:8000/hotels/${hotelId}`);
-      if (!response.ok) throw new Error("Failed to fetch! Try again");
-      const data = await response.json();
-      set({ hotelData: data });
-      return data;
+      set({ loading: true });
+      const response = await API.getHotelsList({ favorites_only: true });
+      set({ hotels: response?.data });
     } catch (error) {
-      console.error(error);
+      console.error(error, "Невозможно получить список избранных отелей");
+    } finally {
+      set({ loading: false });
     }
   },
 
-  // handleHotelLikeButton: async (hotelId, isPressed) => {
-  //   if (!isPressed) {
-  //     await API.addFavoriteHotel(hotelId);
-  //     return !isPressed;
-  //   } else {
-  //     await API.deleteFavoriteHotel(hotelId);
-  //     return !isPressed;
-  //   }
-  // },
+  //заголовок страницы
+  pageTitle: "Все отели",
+  setPageTitle: (title) => {
+    set({ pageTitle: title });
+  },
+}));
+
+export const useHotelPageStore = create((set) => ({
+  hotelData: null,
+  getHotelData: async (hotelId) => {
+    try {
+      const response = await API.getHotelData(hotelId);
+      set({ hotelData: response?.data });
+      return response;
+    } catch (error) {
+      console.error(error, "Невозможно получить данные об отеле");
+    }
+  },
 }));
 
 export const useAppBarStore = create(
@@ -181,11 +166,17 @@ export const useAppBarStore = create(
       favoriteBadgeCount: 0,
       bookingBadgeCount: 0,
       isDarkMode: false,
+      userName: null,
+      setUserName: (userName) => set({ userName: userName }),
       setIsDarkMode: (value) => set({ isDarkMode: value }),
+
       setFavoriteBadgeCount: (newValue) =>
         set(() => ({ favoriteBadgeCount: newValue })),
     }),
-    { name: "hotel-app-storage" }
+
+    {
+      name: "hotel-app-storage",
+    }
   )
 );
 
@@ -195,39 +186,83 @@ export const useBookingPageStore = create((set, get) => ({
   daysCount: 0,
   totalPrice: 0,
 
-  setHotelName: (name) => {
-    set((state) => {
-      return {
-        ...state,
-        hotelName: name,
-      };
-    });
-  },
-  getHotelData: async (hotelId) => {
-    try {
-      console.log("fetching room data");
-      const response = await fetch(`http://localhost:8000/hotels/${hotelId}`);
-      if (!response.ok) throw new Error("Failed to fetch! Try again");
-      const data = await response.json();
-      set({ hotelData: data });
-      return data;
-    } catch (error) {
-      console.error(error);
-    }
-  },
-
   getRoomData: async (roomId) => {
     try {
-      console.log("fetching room data");
-      const response = await fetch(
-        `http://localhost:8000/hotels/rooms/${roomId}`
-      );
-      if (!response.ok) throw new Error("Failed to fetch! Try again");
-      const data = await response.json();
-      set({ roomData: data });
-      return data;
+      const response = await API.getRoomData(roomId);
+      set({ roomData: response?.data });
+      return response;
     } catch (error) {
-      console.error(error);
+      console.error(error, "Невозможно получить данные о комнате");
+    }
+  },
+}));
+
+export const useLoginFormStore = create((set, get) => ({
+  errorMessage: null,
+  setErrorMessage: (msg) => set({ errorMessage: msg }),
+
+  emailValue: "",
+  setEmailValue: (value) => set({ emailValue: value }),
+
+  passwordValue: "",
+  setPasswordValue: (value) => set({ passwordValue: value }),
+
+  sumbitLogin: async () => {
+    try {
+      return await API.loginUser(get().emailValue, get().passwordValue);
+    } catch (error) {
+      if (error?.response?.status) {
+        switch (error.response.status) {
+          case 401:
+            set({ errorMessage: "Неправильный логин или пароль" });
+            break;
+          case 422:
+            set({ errorMessage: "Не указан логин или пароль" });
+            break;
+          case 500:
+            set({ errorMessage: "Ошибка сервера, попробуйте позже" });
+            break;
+          default:
+            set({ errorMessage: "Неизвестная ошибка" });
+        }
+      } else {
+        set({ errorMessage: "Нет ответа от сервера" });
+      }
+    }
+  },
+}));
+
+export const useRegistrationFormStore = create((set, get) => ({
+  errorMessage: null,
+  setErrorMessage: (msg) => set({ errorMessage: msg }),
+
+  emailValue: "",
+  setEmailValue: (value) => set({ emailValue: value }),
+
+  passwordValue: "",
+  setPasswordValue: (value) => set({ passwordValue: value }),
+
+  passwordConfirmValue: "",
+  setPasswordConfirmValue: (value) => set({ passwordConfirmValue: value }),
+
+  submitRegistration: async () => {
+    try {
+      return await API.registerUser(get().emailValue, get().passwordValue);
+    } catch (error) {
+      if (error?.response?.status) {
+        switch (error.response.status) {
+          case 409:
+            set({ errorMessage: "Пользователь с таким email уже существует" });
+            break;
+          case 422:
+            set({ errorMessage: "Не указан логин или пароль" });
+            break;
+          default:
+            set({ errorMessage: "Неизвестная ошибка" });
+        }
+      } else {
+        set({ errorMessage: "Нет ответа от сервера" });
+      }
     }
   },
 }));

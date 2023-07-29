@@ -2,32 +2,25 @@ import {
   Box,
   Button,
   Container,
-  CssBaseline,
   Grid,
   TextField,
   Typography,
 } from "@mui/material";
 import { DateChooser } from "../components/DateChooser";
 import { useEffect } from "react";
-import { useAppBarStore, useBookingPageStore } from "../store/store";
+import { useBookingPageStore, useHotelPageStore } from "../store/store";
 import { useLocation, useParams } from "react-router-dom";
 export const BookingPage = () => {
-  // const setBookingLink = useAppBarStore((state) => state.setBookingLink);
-  // const setHotelLink = useAppBarStore((state) => state.setHotelLink);
-
-  const hotelData = useBookingPageStore((state) => state.hotelData);
+  const hotelData = useHotelPageStore((state) => state.hotelData);
+  const getHotelData = useHotelPageStore((state) => state.getHotelData);
   const roomData = useBookingPageStore((state) => state.roomData);
-  const getHotelData = useBookingPageStore((state) => state.getHotelData);
   const getRoomData = useBookingPageStore((state) => state.getRoomData);
-  const location = useLocation();
   const { roomId } = useParams();
   useEffect(() => {
     const fetchData = async () => {
-      const data = await getRoomData(roomId);
-      await getHotelData(data.hotel_id);
+      const response = await getRoomData(roomId);
+      await getHotelData(response?.data?.hotel_id);
     };
-    // setHotelLink({ isDisplay: true });
-    // setBookingLink({ isDisplay: true, href: location.pathname });
     fetchData();
   }, []);
 

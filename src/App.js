@@ -11,6 +11,7 @@ import { TestFetch } from "./pages/TestFetch";
 import { CssBaseline } from "@mui/material";
 import { darkTheme, lightTheme } from "./theme/theme";
 import { useAppBarStore } from "./store/store";
+import ProtectedRoute from "./utils/ProtectedPage";
 function App() {
   const isDarkMode = useAppBarStore((state) => state.isDarkMode);
   return (
@@ -21,9 +22,26 @@ function App() {
           <Routes>
             <Route path="/login" element={<LoginPage />} />
             <Route path="/registration" element={<RegisterPage />} />
-            <Route path="/home" element={<HomePage />} />
-            <Route path="/booking/:roomId" element={<BookingPage />} />
-            <Route path="/hotel/:id" element={<HotelPage />} />
+            <Route
+              path="/home"
+              element={
+                <ProtectedRoute>
+                  <HomePage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/booking/:roomId"
+              element={
+                <ProtectedRoute>
+                  <BookingPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="/hotel/:id" element={
+            <ProtectedRoute>
+              <HotelPage />
+            </ProtectedRoute>} />
             <Route path="/test" element={<TestFetch />} />
           </Routes>
         </Layout>

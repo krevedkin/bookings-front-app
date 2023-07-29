@@ -1,39 +1,41 @@
 import { createTheme } from "@mui/material";
 import { lightBlue, deepOrange, grey } from "@mui/material/colors";
+import { tooltipClasses } from "@mui/material/Tooltip";
+
 export const darkTheme = createTheme({
-    palette: {
-      mode: 'dark',
-      primary: {
-        main: lightBlue[400]
-      },
-      secondary: {
-        main: deepOrange[400]
-      },
-      background: {
-        paper: grey["900"],
-        default: grey["900"],
-      },
+  palette: {
+    mode: "dark",
+    primary: {
+      main: lightBlue[400],
     },
-    typography: {
-      fontFamily: 'Roboto, Arial, sans-serif',
+    secondary: {
+      main: deepOrange[400],
     },
-  });
-  
-  export const lightTheme = createTheme({
-    palette: {
-      mode: 'light',
-      primary: {
-        main: lightBlue[900]
-      },
-      secondary: {
-        main: deepOrange[900]
-      },
-      background: {
-        // paper: lightBlue["50"], // Цвет фона AppBar
-        default: grey["100"], // Цвет фона контента
-      },
+    background: {
+      paper: grey["900"],
+      default: grey["900"],
     },
-    typography: {
-      fontFamily: 'Roboto, Arial, sans-serif',
+  },
+  typography: {
+    fontFamily: "Roboto, Arial, sans-serif",
+  },
+});
+
+export const lightTheme = createTheme({
+  palette: {
+    mode: "light",
+    primary: {
+      main: lightBlue[900],
     },
-  });
+    secondary: {
+      main: deepOrange[900],
+    },
+    background: {
+      // paper: lightBlue["50"], // Цвет фона AppBar
+      default: grey["100"], // Цвет фона контента
+    },
+  },
+  typography: {
+    fontFamily: "Roboto, Arial, sans-serif",
+  },
+});

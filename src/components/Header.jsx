@@ -24,18 +24,18 @@ import Menu from "@mui/material/Menu";
 import DarkModeIcon from "@mui/icons-material/DarkMode";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useHomePageStore } from "../store/store";
 import { useAppBarStore } from "../store/store";
-
+import { API } from "../http/api";
+import { authStore } from "../store/store";
 export function Header() {
+  const navigate = useNavigate("/login");
+  const isAuthenticated = authStore((state) => state.isAuthenticated);
+  const setIsAuthenticated = authStore((state) => state.setIsAuthenticated);
+  const userName = useAppBarStore((state) => state.userName);
+  const setUserName = useAppBarStore((state) => state.setUserName);
   const [accountDesktopMenu, setAccountDesktopMenu] = useState(null);
-
-  const handleAccountDesktopMenu = (event) => {
-    setAccountDesktopMenu(event.currentTarget);
-  };
-  const handleCloseAccountDesktopMenu = () => {
-    setAccountDesktopMenu(null);
-  };
 
   const isSmallScreen = useMediaQuery((theme) => theme.breakpoints.down("sm"));
   const openMobileMenu = useHomePageStore((state) => state.setIsMobileOpen);
@@ -46,7 +46,32 @@ export function Header() {
   const setIsDarkMode = useAppBarStore((state) => state.setIsDarkMode);
   const [mobileRightMenuOpen, setMobileRightMenuOpen] = useState(false);
 
-  
+  const handleAccountDesktopMenu = (event) => {
+    setAccountDesktopMenu(event.currentTarget);
+  };
+  const handleCloseAccountDesktopMenu = () => {
+    setAccountDesktopMenu(null);
+  };
+
+  const handleLogout = async () => {
+    await API.logoutUser();
+    setIsAuthenticated(false);
+    setUserName(null);
+    navigate("/login");
+  };
+
+  const fetchFavoriteHotels = useHomePageStore(
+    (state) => state.fetchFavoriteHotels
+  );
+
+  const setPageTitle = useHomePageStore((state) => state.setPageTitle);
+
+  const handleFavoriteHotelsButton = () => {
+    fetchFavoriteHotels();
+    setPageTitle("Избранное");
+    setMobileRightMenuOpen(false);
+  };
+
   return (
     <AppBar
       position="fixed"
@@ -62,6 +87,7 @@ export function Header() {
             aria-label="menu"
             sx={{ mr: 2 }}
             onClick={openMobileMenu}
+            disabled={!isAuthenticated}
           >
             <MenuIcon />
           </IconButton>
@@ -87,6 +113,7 @@ export function Header() {
             <IconButton
               onClick={() => setMobileRightMenuOpen(!mobileRightMenuOpen)}
               sx={{ color: "inherit", textDecoration: "none" }}
+              disabled={!isAuthenticated}
             >
               <MoreVertIcon />
             </IconButton>
@@ -108,7 +135,7 @@ export function Header() {
                   </ListItem>
 
                   <ListItem disablePadding>
-                    <ListItemButton>
+                    <ListItemButton onClick={handleFavoriteHotelsButton}>
                       <ListItemIcon>
                         <Badge
                           badgeContent={favoriteBadgeCount}
@@ -137,12 +164,17 @@ export function Header() {
                       <ListItemIcon>
                         <AccountCircle />
                       </ListItemIcon>
-                      <ListItemText primary="Пользователь" />
+                      <ListItemText primary={userName} />
                     </ListItemButton>
                   </ListItem>
 
                   <ListItem disablePadding>
-                    <ListItemButton>
+                    <ListItemButton
+                      onClick={() => {
+                        handleLogout();
+                        setMobileRightMenuOpen(false);
+                      }}
+                    >
                       <ListItemIcon>
                         <LogoutIcon />
                       </ListItemIcon>
@@ -187,6 +219,9 @@ export function Header() {
               aria-label="favorite hotels"
               aria-haspopup="true"
               color="inherit"
+              // onClick={fetchFavoriteHotels}
+              onClick={handleFavoriteHotelsButton}
+              disabled={!isAuthenticated}
             >
               <Badge badgeContent={favoriteBadgeCount} color="secondary">
                 <FavoriteIcon />
@@ -199,6 +234,7 @@ export function Header() {
               aria-controls="menu-appbar"
               aria-haspopup="true"
               color="inherit"
+              disabled={!isAuthenticated}
             >
               <Badge badgeContent={2} color="secondary">
                 <BedIcon />
@@ -211,6 +247,7 @@ export function Header() {
               aria-haspopup="true"
               color="inherit"
               onClick={handleAccountDesktopMenu}
+              disabled={!isAuthenticated}
             >
               <AccountCircle />
             </IconButton>
@@ -221,9 +258,16 @@ export function Header() {
               onClose={handleCloseAccountDesktopMenu}
             >
               <MenuItem onClick={handleCloseAccountDesktopMenu}>
-                Привет
+                {userName}
               </MenuItem>
-              <MenuItem onClick={handleCloseAccountDesktopMenu}>Мир</MenuItem>
+              <MenuItem
+                onClick={() => {
+                  handleCloseAccountDesktopMenu(null);
+                  handleLogout();
+                }}
+              >
+                Выйти из аккаунта
+              </MenuItem>
             </Menu>
           </div>
         )}

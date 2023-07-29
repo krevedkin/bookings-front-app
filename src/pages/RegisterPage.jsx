@@ -1,4 +1,4 @@
-import { RegistrationForm } from "../components/RegistrationForm";
+import { RegistrationForm } from "../components/RegistationForm";
 import { Grid } from "@mui/material";
 export const RegisterPage = () => {
   return (
