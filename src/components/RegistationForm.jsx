@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import {
   Avatar,
   Button,
@@ -9,24 +10,37 @@ import {
   Container,
 } from "@mui/material";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
-import { authStore, useAppBarStore, useLoginFormStore } from "../store/store";
-import { useNavigate } from "react-router-dom";
 import { useForm, Controller } from "react-hook-form";
-import { useEffect } from "react";
+import { useRegistrationFormStore } from "../store/store";
+import { useNavigate } from "react-router-dom";
 
-export function LoginForm() {
-  const emailValue = useLoginFormStore((state) => state.emailValue);
-  const passwordValue = useLoginFormStore((state) => state.passwordValue);
+export function RegistrationForm() {
   const navigate = useNavigate();
-  const setIsAuthenticated = authStore((state) => state.setIsAuthenticated);
-  const setUserName = useAppBarStore((state) => state.setUserName);
-  const errorMessage = useLoginFormStore((state) => state.errorMessage);
-  const setErrorMessage = useLoginFormStore((state) => state.setErrorMessage);
+  const emailValue = useRegistrationFormStore((state) => state.emailValue);
+  const passwordValue = useRegistrationFormStore(
+    (state) => state.passwordValue
+  );
+  const passwordConfirmValue = useRegistrationFormStore(
+    (state) => state.passwordConfirmValue
+  );
 
-  const setEmailValue = useLoginFormStore((state) => state.setEmailValue);
-  const setPasswordValue = useLoginFormStore((state) => state.setPasswordValue);
-  const sumbitLogin = useLoginFormStore((state) => state.sumbitLogin);
+  const errorMessage = useRegistrationFormStore((state) => state.errorMessage);
+  const setErrorMessage = useRegistrationFormStore(
+    (state) => state.setErrorMessage
+  );
 
+  const setEmailValue = useRegistrationFormStore(
+    (state) => state.setEmailValue
+  );
+  const setPasswordValue = useRegistrationFormStore(
+    (state) => state.setPasswordValue
+  );
+  const setPasswordConfirmValue = useRegistrationFormStore(
+    (state) => state.setPasswordConfirmValue
+  );
+  const submitRegistration = useRegistrationFormStore(
+    (state) => state.submitRegistration
+  );
   const {
     handleSubmit,
     control,
@@ -36,24 +50,25 @@ export function LoginForm() {
     defaultValues: {
       email: emailValue,
       password: passwordValue,
+      passwordConfirm: passwordConfirmValue,
     },
   });
 
   const onSubmit = async () => {
-    const response = await sumbitLogin();
-    if (response?.status === 200) {
-      setIsAuthenticated(true);
-      setUserName(response.username);
+    const response = await submitRegistration();
+    if (response?.status === 201) {
       setEmailValue("");
       setPasswordValue("");
-      setErrorMessage(null);
-      navigate("/home");
+      setPasswordConfirmValue("");
+      setErrorMessage("");
+      navigate("/login");
     }
   };
 
   useEffect(() => {
     setValue("email", emailValue);
     setValue("password", passwordValue);
+    setValue("passwordConfirm", passwordConfirmValue);
   }, [setValue]);
 
   return (
@@ -70,7 +85,7 @@ export function LoginForm() {
           <LockOutlinedIcon />
         </Avatar>
         <Typography component="h1" variant="h5">
-          Вход в аккаунт
+          Регистрация
         </Typography>
         <Box component="form" onSubmit={handleSubmit(onSubmit)}>
           <Controller
@@ -133,6 +148,38 @@ export function LoginForm() {
               />
             )}
           />
+          <Controller
+            name="passwordConfirm"
+            control={control}
+            rules={{
+              required: "Поле обязательно",
+              minLength: {
+                value: 6,
+                message: "Пароль должен быть не менее 6 символов",
+              },
+              validate: (value) => {
+                return passwordValue === value || "Пароли не совпадают";
+              },
+            }}
+            render={({ field }) => (
+              <TextField
+                {...field}
+                margin="normal"
+                required
+                fullWidth
+                name="passwordConfirm"
+                label="Подтвердите пароль"
+                type="password"
+                id="passwordConfirm"
+                error={!!errors.passwordConfirm}
+                helperText={errors.passwordConfirm?.message}
+                onChange={(e) => {
+                  setPasswordConfirmValue(e.target.value);
+                  field.onChange(e);
+                }}
+              />
+            )}
+          />
           {errorMessage && (
             <Grid item xs={12} pb={1}>
               <Typography textAlign={"center"} color="error">
@@ -146,12 +193,12 @@ export function LoginForm() {
             variant="contained"
             sx={{ mt: 3, mb: 2 }}
           >
-            Войти
+            Зарегистрироваться
           </Button>
           <Grid container justifyContent="flex-end">
             <Grid item>
-              <Link href="/registration" variant="body2">
-                Нет аккаунта? Регистрация
+              <Link href="/login" variant="body2">
+                Уже есть аккаунт? Войти
               </Link>
             </Grid>
           </Grid>

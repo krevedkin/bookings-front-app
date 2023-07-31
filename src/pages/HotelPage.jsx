@@ -5,37 +5,26 @@ import {
   Divider,
   Grid,
   Rating,
+  Chip,
 } from "@mui/material";
 import { useParams, useNavigate } from "react-router-dom";
 import { RoomCard } from "../components/RoomCard";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
-import { ServiceChip } from "../components/ServiceChip";
-import QuiltedImageList from "../components/Images";
+import { Images } from "../components/Images";
 import { useHotelPageStore } from "../store/store";
-import { useEffect } from "react";
-import { useAppBarStore } from "../store/store";
-import { useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
 export const HotelPage = () => {
   const hotelData = useHotelPageStore((state) => state.hotelData);
   const getHotelData = useHotelPageStore((state) => state.getHotelData);
   const { id } = useParams();
-  // const setHotelLink = useAppBarStore((state) => state.setHotelLink);
-  // const setBookingLink = useAppBarStore((state) => state.setBookingLink);
   const navigate = useNavigate();
-  const location = useLocation();
   const openRoomBookingPage = (roomId) => navigate(`/booking/${roomId}`);
+  const [images, setImages] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
-      const data = await getHotelData(id);
-      // setHotelLink({
-      //   isDisplay: true,
-      //   label: data.name,
-      //   href: location.pathname,
-      // });
-      // setBookingLink({
-      //   isDisplay: false,
-      // });
+      const response = await getHotelData(id);
+      setImages(response?.data?.rooms.map((room) => room.image_url));
     };
     fetchData();
   }, []);
@@ -71,7 +60,7 @@ export const HotelPage = () => {
           {hotelData.services.map((text, index) => {
             return (
               <Grid item key={index}>
-                {<ServiceChip label={text} />}
+                <Chip color="primary" variant="outlined" label={text} />
               </Grid>
             );
           })}
@@ -82,7 +71,7 @@ export const HotelPage = () => {
         <Divider sx={{ pt: 1 }} />
 
         <Grid container justifyContent={"center"}>
-          <QuiltedImageList />
+          <Images roomImages={images} cols={images.length === 1 ? 1 : 2} />
         </Grid>
         <Divider sx={{ pt: 1 }} />
 

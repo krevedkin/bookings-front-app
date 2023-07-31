@@ -1,13 +1,7 @@
 import { useEffect } from "react";
-import Box from "@mui/material/Box";
-import Drawer from "@mui/material/Drawer";
-import List from "@mui/material/List";
-import ListItem from "@mui/material/ListItem";
-import ListItemText from "@mui/material/ListItemText";
-import Toolbar from "@mui/material/Toolbar";
-import Typography from "@mui/material/Typography";
-import { useTheme } from "@mui/material/styles";
 import { DateChooser } from "./DateChooser";
+import InfoIcon from "@mui/icons-material/Info";
+import { useTheme } from "@mui/material/";
 import {
   MenuItem,
   FormControl,
@@ -16,6 +10,16 @@ import {
   Rating,
   Slider,
   Button,
+  Grid,
+  Box,
+  Drawer,
+  List,
+  ListItem,
+  ListItemText,
+  Toolbar,
+  IconButton,
+  Tooltip,
+  Typography,
 } from "@mui/material/";
 import { useHomePageStore } from "../store/store";
 
@@ -25,8 +29,11 @@ function SideBar(props) {
   const { window } = props;
   const theme = useTheme();
 
+  const setPageTitle = useHomePageStore((state) => state.setPageTitle);
   const costSliderValues = useHomePageStore((state) => state.costSliderValues);
-  const setCostSliderValues = useHomePageStore((state) => state.setCostSliderValues);
+  const setCostSliderValues = useHomePageStore(
+    (state) => state.setCostSliderValues
+  );
 
   const mobileOpen = useHomePageStore((state) => state.isMobileOpen);
   const handleDrawerToggle = useHomePageStore((state) => state.setIsMobileOpen);
@@ -36,53 +43,83 @@ function SideBar(props) {
 
   const dropdownValue = useHomePageStore((state) => state.dropdownValue);
   const setDropdownValue = useHomePageStore((state) => state.setDropdownValue);
-  const dropdownPlaces = useHomePageStore((state) => state.places);
+  const cities = useHomePageStore((state) => state.cities);
 
   const dateFrom = useHomePageStore((state) => state.dateFrom);
-  const setSelectedDateFrom = useHomePageStore((state) => state.setSelectedDateFrom);
+  const setSelectedDateFrom = useHomePageStore(
+    (state) => state.setSelectedDateFrom
+  );
 
   const dateTo = useHomePageStore((state) => state.dateTo);
-  const setSelectedDateTo = useHomePageStore((state) => state.setSelectedDateTo);
+  const setSelectedDateTo = useHomePageStore(
+    (state) => state.setSelectedDateTo
+  );
 
-  const handleConfirmButton = useHomePageStore((state) => state.handleConfirmButton);
-  const handleResetButton = useHomePageStore((state) => state.handleResetButton);
+  const handleConfirmButton = useHomePageStore(
+    (state) => state.handleConfirmButton
+  );
+  const handleResetButton = useHomePageStore(
+    (state) => state.handleResetButton
+  );
 
-  const fetchPlaces = useHomePageStore((state) => state.fetchPlaces);
+  const getCities = useHomePageStore((state) => state.getCities);
 
   useEffect(() => {
-    console.log("fetching places")
-    fetchPlaces()
+    getCities();
   }, []);
   const drawer = (
     <div>
-      <Toolbar sx={{ bgcolor: theme.palette.primary.main }}>
-        <Typography
-          variant="h6"
-          noWrap
-          component="div"
-          color={theme.palette.primary.contrastText}
-        >
-          Hotels
-        </Typography>
-      </Toolbar>
-
+      <Toolbar />
       <List disablePadding sx={{ mt: 5 }}>
-        <ListItem disablePadding sx={{ textAlign: "center" }}>
-          <ListItemText primary="Выбрать даты" />
+        <ListItem sx={{ textAlign: "center" }}>
+          <Grid
+            container
+            justifyContent={"center"}
+            spacing={1}
+            alignItems={"center"}
+          >
+            <Grid item>
+              <ListItemText primary="Выбрать даты" />
+            </Grid>
+            <Grid item>
+              <Tooltip
+                title={
+                  <Typography>
+                    При выборе дат будут показаны только те отели, у которых
+                    есть хотя бы одна свободная комната на выбранный период
+                  </Typography>
+                }
+                placement="right-start"
+              >
+                <IconButton>
+                  <InfoIcon />
+                </IconButton>
+              </Tooltip>
+            </Grid>
+          </Grid>
         </ListItem>
         <ListItem disablePadding sx={{ px: 1 }}>
           <DateChooser
             label="Дата заезда"
             value={dateFrom}
             onChange={setSelectedDateFrom}
+            sx={{
+              "& .MuiInputBase-input.Mui-disabled": {
+                WebkitTextFillColor: theme.palette.text.primary,
+              },
+            }}
           />
         </ListItem>
-        <ListItem disablePadding>
+        <ListItem disablePadding sx={{ px: 1 }}>
           <DateChooser
             label="Дата выезда"
             value={dateTo}
             onChange={setSelectedDateTo}
-            sx={{ px: 1 }}
+            sx={{
+              "& .MuiInputBase-input.Mui-disabled": {
+                WebkitTextFillColor: theme.palette.text.primary,
+              },
+            }}
           />
         </ListItem>
         <ListItem disablePadding sx={{ textAlign: "center" }}>
@@ -104,7 +141,7 @@ function SideBar(props) {
               <MenuItem value="all" onClick={() => setDropdownValue("all")}>
                 <em>Все</em>
               </MenuItem>
-              {dropdownPlaces.map((text) => {
+              {cities.map((text) => {
                 return (
                   <MenuItem
                     key={text}
@@ -155,7 +192,14 @@ function SideBar(props) {
         </ListItem>
 
         <ListItem>
-          <Button fullWidth variant="contained" onClick={handleConfirmButton}>
+          <Button
+            fullWidth
+            variant="contained"
+            onClick={() => {
+              handleConfirmButton();
+              setPageTitle("Все отели");
+            }}
+          >
             Применить
           </Button>
         </ListItem>
@@ -164,7 +208,10 @@ function SideBar(props) {
             fullWidth
             variant="contained"
             color="error"
-            onClick={handleResetButton}
+            onClick={() => {
+              handleResetButton();
+              setPageTitle("Все отели");
+            }}
           >
             Сбросить
           </Button>
@@ -180,16 +227,14 @@ function SideBar(props) {
     <Box
       component="nav"
       sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
-      aria-label="mailbox folders"
     >
-      {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
       <Drawer
         container={container}
         variant="temporary"
         open={mobileOpen}
         onClose={handleDrawerToggle}
         ModalProps={{
-          keepMounted: true, // Better open performance on mobile.
+          keepMounted: true,
         }}
         sx={{
           display: { xs: "block", sm: "none" },
