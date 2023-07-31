@@ -1,17 +1,16 @@
-import "./App.css";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { ThemeProvider, createTheme } from "@mui/material/styles";
+import { ThemeProvider } from "@mui/material/styles";
 import { LoginPage } from "./pages/LoginPage";
 import { RegisterPage } from "./pages/RegisterPage";
 import { HomePage } from "./pages/HomePage";
 import { HotelPage } from "./pages/HotelPage";
 import { Layout } from "./components/Layout";
 import { BookingPage } from "./pages/BookingPage";
-import { TestFetch } from "./pages/TestFetch";
 import { CssBaseline } from "@mui/material";
 import { darkTheme, lightTheme } from "./theme/theme";
 import { useAppBarStore } from "./store/store";
-import ProtectedRoute from "./utils/ProtectedPage";
+import ProtectedRoute from "./pages/ProtectedPage";
+import { UserBookingsPage } from "./pages/UserBookingsPage";
 function App() {
   const isDarkMode = useAppBarStore((state) => state.isDarkMode);
   return (
@@ -38,11 +37,22 @@ function App() {
                 </ProtectedRoute>
               }
             />
-            <Route path="/hotel/:id" element={
-            <ProtectedRoute>
-              <HotelPage />
-            </ProtectedRoute>} />
-            <Route path="/test" element={<TestFetch />} />
+            <Route
+              path="/hotel/:id"
+              element={
+                <ProtectedRoute>
+                  <HotelPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/bookings/"
+              element={
+                <ProtectedRoute>
+                  <UserBookingsPage />
+                </ProtectedRoute>
+              }
+            />
           </Routes>
         </Layout>
       </Router>

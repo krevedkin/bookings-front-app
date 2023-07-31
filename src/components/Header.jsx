@@ -47,6 +47,8 @@ export function Header() {
   const setIsDarkMode = useAppBarStore((state) => state.setIsDarkMode);
   const [mobileRightMenuOpen, setMobileRightMenuOpen] = useState(false);
 
+  const bookingBadgeCount = useAppBarStore((state) => state.bookingBadgeCount);
+
   const handleAccountDesktopMenu = (event) => {
     setAccountDesktopMenu(event.currentTarget);
   };
@@ -68,12 +70,12 @@ export function Header() {
   const setPageTitle = useHomePageStore((state) => state.setPageTitle);
 
   const handleFavoriteHotelsButton = async () => {
+    await fetchFavoriteHotels();
+    setPageTitle("Избранное");
+    setMobileRightMenuOpen(false);
     if (location.pathname !== "/home") {
       navigate("/home");
     }
-    const response = await fetchFavoriteHotels();
-    setPageTitle("Избранное");
-    setMobileRightMenuOpen(false);
   };
 
   return (
@@ -153,9 +155,17 @@ export function Header() {
                   </ListItem>
 
                   <ListItem disablePadding>
-                    <ListItemButton>
+                    <ListItemButton
+                      onClick={() => {
+                        setMobileRightMenuOpen(false);
+                        navigate("/bookings");
+                      }}
+                    >
                       <ListItemIcon>
-                        <Badge badgeContent={2} color="secondary">
+                        <Badge
+                          badgeContent={bookingBadgeCount}
+                          color="secondary"
+                        >
                           <BedIcon />
                         </Badge>
                       </ListItemIcon>
@@ -238,8 +248,9 @@ export function Header() {
               aria-haspopup="true"
               color="inherit"
               disabled={!isAuthenticated}
+              onClick={() => navigate("/bookings")}
             >
-              <Badge badgeContent={2} color="secondary">
+              <Badge badgeContent={bookingBadgeCount} color="secondary">
                 <BedIcon />
               </Badge>
             </IconButton>

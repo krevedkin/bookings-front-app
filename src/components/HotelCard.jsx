@@ -1,9 +1,13 @@
-import Card from "@mui/material/Card";
-import CardContent from "@mui/material/CardContent";
-import Typography from "@mui/material/Typography";
-import { IconButton, CardActionArea, CardActions } from "@mui/material";
+import {
+  IconButton,
+  CardActionArea,
+  CardActions,
+  Rating,
+  Card,
+  CardContent,
+  Typography,
+} from "@mui/material";
 import FavoriteIcon from "@mui/icons-material/Favorite";
-import Rating from "@mui/material/Rating";
 import { LazyLoadImage } from "react-lazy-load-image-component";
 import "react-lazy-load-image-component/src/effects/blur.css";
 
@@ -17,7 +21,7 @@ export const HotelCard = ({
   minPrice,
   openHotelPage,
   isFavorite,
-  handleLikeClick
+  handleLikeClick,
 }) => {
   return (
     <Card elevation={12}>
@@ -65,9 +69,7 @@ export const HotelCard = ({
         >
           <FavoriteIcon />
         </IconButton>
-        <Typography
-          variant="body2"
-        >
+        <Typography variant="body2">
           {isFavorite ? "Добавлено в избранное" : "Добавить в избранное"}
         </Typography>
       </CardActions>

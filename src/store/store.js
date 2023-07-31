@@ -185,7 +185,7 @@ export const useHotelPageStore = create((set) => ({
 
 export const useAppBarStore = create(
   persist(
-    (set, get) => ({
+    (set) => ({
       favoriteBadgeCount: 0,
       bookingBadgeCount: 0,
       isDarkMode: false,
@@ -195,8 +195,21 @@ export const useAppBarStore = create(
 
       setFavoriteBadgeCount: (newValue) =>
         set(() => ({ favoriteBadgeCount: newValue })),
-    }),
 
+      setBookingBadgeCount: (value) => {
+        set({ bookingBadgeCount: value });
+      },
+
+      getBookingsCount: async () => {
+        try {
+          const response = await API.getBookingsCount();
+          set({ bookingBadgeCount: response?.data });
+          return response;
+        } catch (error) {
+          console.error(error);
+        }
+      },
+    }),
     {
       name: "hotel-app-storage",
     }
@@ -241,6 +254,9 @@ export const useBookingPageStore = create((set, get) => ({
   errorLastNameValue: "",
   setErrorLastNameValue: (value) => set({ errorLastNameValue: value }),
 
+  errorMessage: "",
+  setErrorMessage: (value) => set({ errorMessage: value }),
+
   getRoomData: async (roomId) => {
     try {
       const response = await API.getRoomData(roomId);
@@ -268,7 +284,11 @@ export const useBookingPageStore = create((set, get) => ({
       );
       return response;
     } catch (error) {
-      console.error(error);
+      if (error?.response?.status === 409) {
+        get().setErrorMessage(error?.response?.data?.detail);
+        get().setErrorDateFrom("Выберите другую дату");
+        get().setErrorDateTo("Выберите другую дату");
+      }
     }
   },
 }));
@@ -339,6 +359,27 @@ export const useRegistrationFormStore = create((set, get) => ({
       } else {
         set({ errorMessage: "Нет ответа от сервера" });
       }
+    }
+  },
+}));
+
+export const useUserBookingsPage = create((set) => ({
+  bookings: [],
+  setBookings: (value) => set({ bookings: value }),
+  fetchBookings: async () => {
+    try {
+      const response = await API.getUserBookings();
+      set({ bookings: response?.data });
+    } catch (error) {
+      console.error(error);
+    }
+  },
+
+  deleteBooking: async (bookingId) => {
+    try {
+      return await API.deleteBooking(bookingId);
+    } catch (error) {
+      console.error(error);
     }
   },
 }));

@@ -1,13 +1,15 @@
 import { useEffect } from "react";
-import Avatar from "@mui/material/Avatar";
-import Button from "@mui/material/Button";
-import TextField from "@mui/material/TextField";
-import Link from "@mui/material/Link";
-import Grid from "@mui/material/Grid";
-import Box from "@mui/material/Box";
+import {
+  Avatar,
+  Button,
+  TextField,
+  Link,
+  Grid,
+  Box,
+  Typography,
+  Container,
+} from "@mui/material";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
-import Typography from "@mui/material/Typography";
-import Container from "@mui/material/Container";
 import { useForm, Controller } from "react-hook-form";
 import { useRegistrationFormStore } from "../store/store";
 import { useNavigate } from "react-router-dom";
@@ -55,7 +57,6 @@ export function RegistrationForm() {
   const onSubmit = async () => {
     const response = await submitRegistration();
     if (response?.status === 201) {
-      console.log("ЗАРЕГИСТРИРОВАН")
       setEmailValue("");
       setPasswordValue("");
       setPasswordConfirmValue("");

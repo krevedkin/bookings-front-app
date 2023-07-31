@@ -6,8 +6,6 @@ const PhoneInput = (props) => {
   return (
     <ReactPhoneInput
       {...props}
-      // onPhoneChange={props.onPhoneChange}
-      // onChange={() => console.log("changed")}
       component={TextField}
       inputProps={{ helperText: props.helperText }}
     />

@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { DateChooser } from "./DateChooser";
 import InfoIcon from "@mui/icons-material/Info";
+import { useTheme } from "@mui/material/";
 import {
   MenuItem,
   FormControl,
@@ -26,6 +27,7 @@ const drawerWidth = 240;
 
 function SideBar(props) {
   const { window } = props;
+  const theme = useTheme();
 
   const setPageTitle = useHomePageStore((state) => state.setPageTitle);
   const costSliderValues = useHomePageStore((state) => state.costSliderValues);
@@ -101,6 +103,11 @@ function SideBar(props) {
             label="Дата заезда"
             value={dateFrom}
             onChange={setSelectedDateFrom}
+            sx={{
+              "& .MuiInputBase-input.Mui-disabled": {
+                WebkitTextFillColor: theme.palette.text.primary,
+              },
+            }}
           />
         </ListItem>
         <ListItem disablePadding sx={{ px: 1 }}>
@@ -108,6 +115,11 @@ function SideBar(props) {
             label="Дата выезда"
             value={dateTo}
             onChange={setSelectedDateTo}
+            sx={{
+              "& .MuiInputBase-input.Mui-disabled": {
+                WebkitTextFillColor: theme.palette.text.primary,
+              },
+            }}
           />
         </ListItem>
         <ListItem disablePadding sx={{ textAlign: "center" }}>
@@ -222,7 +234,7 @@ function SideBar(props) {
         open={mobileOpen}
         onClose={handleDrawerToggle}
         ModalProps={{
-          keepMounted: true, // Better open performance on mobile.
+          keepMounted: true,
         }}
         sx={{
           display: { xs: "block", sm: "none" },

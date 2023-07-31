@@ -36,6 +36,11 @@ export const HomePage = () => {
     (state) => state.setFavoriteBadgeCount
   );
 
+  const setBookingBadgeCount = useAppBarStore(
+    (state) => state.setBookingBadgeCount
+  );
+  const getBookingsCount = useAppBarStore((state) => state.getBookingsCount);
+
   const addFavoriteHotel = useHomePageStore((state) => state.addFavoriteHotel);
   const removeFavoriteHotel = useHomePageStore(
     (state) => state.removeFavoriteHotel
@@ -66,7 +71,6 @@ export const HomePage = () => {
         setFavoriteBadgeCount(favoriteBadgeCount - 1);
         break;
       default:
-        
     }
   };
 
@@ -82,10 +86,13 @@ export const HomePage = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      console.log("useEffect");
-      const response = await fetchHotels();
-      const favoriteHotelsCount = calculateFavoriteHotels(response?.data);
-      setFavoriteBadgeCount(favoriteHotelsCount);
+      if (pageTitle === "Все отели") {
+        const response = await fetchHotels();
+        const bookingsCountResponse = await getBookingsCount();
+        const favoriteHotelsCount = calculateFavoriteHotels(response?.data);
+        setFavoriteBadgeCount(favoriteHotelsCount);
+        setBookingBadgeCount(bookingsCountResponse?.data);
+      }
     };
     fetchData();
   }, []);
@@ -102,6 +109,7 @@ export const HomePage = () => {
           flexGrow: 1,
           width: { sm: `calc(100% - ${240}px)` },
           height: "100%",
+          p: 1,
         }}
       >
         <Toolbar />
@@ -147,7 +155,11 @@ export const HomePage = () => {
                   minHeight: "70vh",
                 }}
               >
-                <Typography variant="h2" textAlign="center">
+                <Typography
+                  variant="h2"
+                  textAlign="center"
+                  color="text.secondary"
+                >
                   {pageTitle === "Все отели"
                     ? "Отели не найдены"
                     : "Нет избранных отелей"}

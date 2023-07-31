@@ -1,6 +1,7 @@
 import axios from "axios";
 import { CONFIG } from "../config";
-import { parse_jwt } from "../utils/jwt";
+import { parse_jwt } from "./jwt";
+
 const instance = axios.create({
   withCredentials: true,
   baseURL: CONFIG.baseUrl,
@@ -27,7 +28,7 @@ instance.interceptors.response.use(
   },
   async (error) => {
     const originalRequest = error.config;
-    if (error.response.status === 401) {
+    if (error?.response?.status === 401) {
       try {
         const response = await axios.post(
           `${CONFIG.baseUrl}/auth/refresh`,
@@ -40,7 +41,10 @@ instance.interceptors.response.use(
         return instance.request(originalRequest);
       } catch (error) {
         console.error(error);
+        window.location.href = "/login";
       }
+    } else {
+      throw error;
     }
   }
 );
@@ -68,6 +72,7 @@ export class API {
     try {
       return await instance.get("hotels/cities");
     } catch (error) {
+      console.log("ОШИБКА ИЗ СИТИС");
       throw error;
     }
   }
@@ -80,21 +85,18 @@ export class API {
     }
   }
 
-  //TODO тут харкод юзера
   static async addFavoriteHotel(hotelId) {
     try {
       const payload = {
         hotel_id: hotelId,
       };
-      const response = await instance.post("/hotels/favorite", payload);
-      console.log(response.data);
+      return await instance.post("/hotels/favorite", payload);
     } catch (error) {
       console.error(error.code);
       console.error(error.message);
     }
   }
 
-  //TODO тут харкод юзера
   static async deleteFavoriteHotel(hotelId) {
     try {
       const payload = {
@@ -172,17 +174,44 @@ export class API {
     secondName,
     phone
   ) {
+    const payload = {
+      date_from: dateFrom,
+      date_to: dateTo,
+      room_id: roomId,
+      email: email,
+      first_name: firstName,
+      second_name: secondName,
+      phone: phone,
+    };
     try {
-      const payload = {
-        date_from: dateFrom,
-        date_to: dateTo,
-        room_id: roomId,
-        email: email,
-        first_name: firstName,
-        second_name: secondName,
-        phone: phone,
-      };
       return await instance.post("/bookings", payload);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  static async getUserBookings() {
+    try {
+      return await instance.get("/bookings");
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  static async deleteBooking(bookingId) {
+    const payload = {
+      booking_id: bookingId,
+    };
+    try {
+      return await instance.delete("/bookings", { data: payload });
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  static async getBookingsCount() {
+    try {
+      return await instance.get("/bookings/count");
     } catch (error) {
       throw error;
     }

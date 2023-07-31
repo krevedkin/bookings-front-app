@@ -4,19 +4,21 @@ import {
   Container,
   Grid,
   TextField,
+  Toolbar,
   Typography,
 } from "@mui/material";
-import { DateChooser } from "../components/DateChooser";
-import ReactPhoneInput from "react-phone-input-material-ui";
-import { useEffect } from "react";
 import {
   useAppBarStore,
   useBookingPageStore,
   useHomePageStore,
   useHotelPageStore,
 } from "../store/store";
+import { DateChooser } from "../components/DateChooser";
+import ReactPhoneInput from "react-phone-input-material-ui";
+import { useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
+import { useTheme } from "@emotion/react";
 export const BookingPage = () => {
   const userName = useAppBarStore((state) => state.userName);
 
@@ -92,10 +94,12 @@ export const BookingPage = () => {
   const setErrorDateTo = useBookingPageStore((state) => state.setErrorDateTo);
 
   const addBooking = useBookingPageStore((state) => state.addBooking);
+  const errorMessage = useBookingPageStore((state) => state.errorMessage);
 
   const setAlertOpen = useHomePageStore((state) => state.setAlertOpen);
   const { roomId } = useParams();
   const navigate = useNavigate();
+  const theme = useTheme();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -111,6 +115,18 @@ export const BookingPage = () => {
     };
     fetchData();
   }, []);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const isValid = validateForm();
+    if (isValid) {
+      const response = await addBooking();
+      if (response?.status === 201) {
+        navigate("/home");
+        setAlertOpen(true);
+      }
+    }
+  };
 
   useEffect(() => {
     if (dateFromHomePage && dateToHomePage) {
@@ -169,12 +185,11 @@ export const BookingPage = () => {
   }
   return (
     <Container maxWidth={"sm"}>
+      <Toolbar />
       <Box
         sx={{
-          marginTop: 8,
           display: "flex",
           flexDirection: "column",
-          alignItems: "center",
         }}
       >
         <Box
@@ -198,40 +213,60 @@ export const BookingPage = () => {
                 {roomData.name}
               </Typography>
             </Grid>
+            {errorMessage && (
+              <Grid item xs={12}>
+                <Typography color="error">{errorMessage}</Typography>
+              </Grid>
+            )}
           </Grid>
           <Grid container pt={2}>
             <Grid item sm={12}>
               <Typography>Выберите даты</Typography>
             </Grid>
-            <Grid item xs={12} sm={6}>
-              <DateChooser
-                label="Дата заезда"
-                value={dateFromHomePage ? dateFromHomePage : dateFrom}
-                onChange={setSelectedDateFrom}
-                onClose={() => setErrorDateFrom("")}
-                maxDate={dayjs(dateTo).subtract(1, "day")}
-                errorText={
-                  Boolean(errorDateFrom)
-                    ? errorDateFrom
-                    : "выберите дату заезда"
-                }
-                error={Boolean(errorDateFrom)}
-                sx={{ width: "100%" }}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
-              <DateChooser
-                label="Дата выезда"
-                value={dateToHomePage ? dateToHomePage : dateTo}
-                onChange={setSelectedDateTo}
-                onClose={() => setErrorDateTo("")}
-                minDate={dayjs(dateFrom).add(1, "day")}
-                errorText={
-                  Boolean(errorDateTo) ? errorDateTo : "выберите дату выезда"
-                }
-                error={Boolean(errorDateTo)}
-                sx={{ width: "100%" }}
-              />
+            <Grid item container spacing={1}>
+              <Grid item xs={12} sm={6}>
+                <DateChooser
+                  label="Дата заезда"
+                  value={dateFromHomePage ? dateFromHomePage : dateFrom}
+                  onChange={setSelectedDateFrom}
+                  onClose={() => setErrorDateFrom("")}
+                  maxDate={dayjs(dateTo).subtract(1, "day")}
+                  required
+                  errorText={
+                    Boolean(errorDateFrom)
+                      ? errorDateFrom
+                      : "выберите дату заезда"
+                  }
+                  error={Boolean(errorDateFrom)}
+                  sx={{
+                    width: "100%",
+                    "& .MuiInputBase-input.Mui-disabled": {
+                      WebkitTextFillColor: theme.palette.text.primary,
+                    },
+                  }}
+                />
+              </Grid>
+
+              <Grid item xs={12} sm={6}>
+                <DateChooser
+                  label="Дата выезда"
+                  value={dateToHomePage ? dateToHomePage : dateTo}
+                  onChange={setSelectedDateTo}
+                  onClose={() => setErrorDateTo("")}
+                  minDate={dayjs(dateFrom).add(1, "day")}
+                  errorText={
+                    Boolean(errorDateTo) ? errorDateTo : "выберите дату выезда"
+                  }
+                  error={Boolean(errorDateTo)}
+                  required
+                  sx={{
+                    width: "100%",
+                    "& .MuiInputBase-input.Mui-disabled": {
+                      WebkitTextFillColor: theme.palette.text.primary,
+                    },
+                  }}
+                />
+              </Grid>
             </Grid>
           </Grid>
 
@@ -301,6 +336,7 @@ export const BookingPage = () => {
                 label={"Телефон"}
                 placeholder="+7 (123) 456-78-90"
                 inputProps={{
+                  required: true,
                   helperText: Boolean(errorPhoneValue)
                     ? errorPhoneValue
                     : "Введите свой телефон",
@@ -354,20 +390,7 @@ export const BookingPage = () => {
                 variant="contained"
                 fullWidth
                 type="submit"
-                onClick={async (e) => {
-                  e.preventDefault();
-                  const isValid = validateForm();
-                  if (isValid) {
-                    // const response = await addBooking();
-                    // if (response?.status === 201) {
-                    //   navigate("/home");
-                    // }
-                    setAlertOpen(true);
-                    navigate("/home");
-                  } else {
-                    console.log("failed");
-                  }
-                }}
+                onClick={(e) => handleSubmit(e)}
               >
                 Подтвердить
               </Button>
