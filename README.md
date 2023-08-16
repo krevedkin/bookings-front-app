@@ -1,4 +1,4 @@
-# React Hotels app frontend
+# React Hotels frontend
 React приложение сервиса по поиску и бронированию отелей. Целью проекта является создание fullstack веб-приложения для работы с современными технологиями используемыми при разработке современных веб-приложений. [Ссылка на backend](https://github.com/krevedkin/fastapi_hotels/tree/main)
 
 # Features
